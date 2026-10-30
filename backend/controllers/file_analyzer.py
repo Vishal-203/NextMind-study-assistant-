@@ -9,7 +9,10 @@ from pypdf import PdfReader
 
 from utils.helpers import parse_object_id
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+UPLOAD_FOLDER = os.getenv(
+    'UPLOAD_FOLDER',
+    os.path.join(os.path.dirname(__file__), '..', 'uploads')
+)
 MAX_TEXT_LENGTH = 10000
 
 

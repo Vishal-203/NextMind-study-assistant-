@@ -9,3 +9,9 @@ pypdf
 python-docx
 pillow
 pytesseract
+# Production server
+gunicorn
+# Testing
+pytest
+pytest-flask
+mongomock

@@ -88,13 +88,19 @@ cd frontend && npm install && cd ..
 
 ### 3. Configuration
 
-Create a `.env` file in the project root by copying the included example:
+Create `.env` in the **project root** by copying the included example:
 
 ```bash
 cp .env.example .env
 ```
 
-Open `.env` and set the required values (do NOT commit secrets to Git).
+On Windows PowerShell, use `Copy-Item .env.example .env` if `cp` is unavailable.
+
+Open `.env` and set the required values. Do not commit `.env` to Git.
+
+- `APP_ENV=development` enables the local development configuration and Flask debug mode.
+- `APP_ENV=production` requires `SECRET_KEY`, `JWT_SECRET_KEY`, and `MONGO_URI` to be set explicitly. Production debug mode is disabled.
+- The hosting provider should receive these values as platform environment variables rather than a committed `.env` file.
 
 ### 4. Database Setup
 
@@ -236,6 +242,7 @@ NexMind-study-assistant-/
 
 | Variable | Description | Example |
 |----------|-------------|---------|
+| `APP_ENV` | Runtime environment: `development` or `production` | `development` |
 | `SECRET_KEY` | Flask secret key | `your-secret-key` |
 | `JWT_SECRET_KEY` | JWT signing key | `your-jwt-key` |
 | `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/ai_study_assistant` |
@@ -293,15 +300,24 @@ The project uses Flask debug mode for development. Test endpoints via:
 - [ ] Use production WSGI server (gunicorn)
 - [ ] Compress canvas drawings before storage
 
-### Example Production Setup
+### Deploy to Render
+
+1. Create a free database on MongoDB Atlas and allow network access from `0.0.0.0/0` for the initial deployment.
+2. Copy the Atlas connection string, including the database name and credentials.
+3. Push this repository to GitHub.
+4. In Render, choose **New > Blueprint** and select the repository. Render reads [render.yaml](render.yaml).
+5. Set the required `MONGO_URI` value during blueprint setup.
+6. Optionally set `OPENAI_API_KEY` for AI features.
+7. Open the generated service URL and verify `https://YOUR-SERVICE.onrender.com/api/health`.
+
+Alternatively, run the production server locally after setting production environment variables:
 
 ```bash
-# Install production server
-pip install gunicorn
-
-# Run with gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 backend.app:app
+python -m pip install -r backend/requirements.txt
+gunicorn --bind 0.0.0.0:5000 --workers 2 backend.app:app
 ```
+
+> Important: uploaded files stored on Render's filesystem are ephemeral on the free plan and may be lost when the service restarts or redeploys. Configure persistent disk storage or migrate uploads to object storage before relying on file uploads in production.
 
 ## Optional Enhancements
 

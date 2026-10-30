@@ -5,17 +5,18 @@ from controllers.file_controller import upload_file, delete_file, get_file, list
 file_bp = Blueprint('file', __name__)
 
 
+@file_bp.route('', methods=['POST'])
 @file_bp.route('/', methods=['POST'])
 @jwt_required()
 def upload():
     return upload_file(current_app)
 
 
+@file_bp.route('', methods=['GET'])
 @file_bp.route('/', methods=['GET'])
 @jwt_required()
 def files():
     return list_files(current_app)
-
 
 @file_bp.route('/<file_id>', methods=['DELETE'])
 @jwt_required()

@@ -37,6 +37,7 @@
           <option value="">-- No file selected --</option>
         </select>
         <button class="btn" id="refresh-files" style="width: 100%;">Refresh Data</button>
+        <button class="btn btn-secondary" id="analyze-file-btn" style="width: 100%; margin-top:0.5rem;">Analyze Selected File</button>
         <p id="file-status" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
       </div>
 
@@ -118,7 +119,7 @@ async function display(eid, endpoint, payload, btn){
     return; 
   }
   
-  const data = res.data.answer || res.data.summary || res.data.quiz;
+  const data = res.data.answer || res.data.summary || res.data.quiz || res.data.text;
   out.textContent = data;
   out.style.display = 'block';
 }
@@ -162,7 +163,11 @@ async function loadNoteOptions() {
 
 document.getElementById('ask-btn').onclick = async function() {
   const q = document.getElementById('question').value.trim();
-  if(!q) return;
+  if(!q) {
+    document.getElementById('answer').textContent = 'Enter a question first.';
+    document.getElementById('answer').style.display = 'block';
+    return;
+  }
   const fileId = document.getElementById('file-select').value || null;
   const noteId = document.getElementById('note-select').value || null;
   const payload = { message: q };
@@ -173,26 +178,62 @@ document.getElementById('ask-btn').onclick = async function() {
 
 document.getElementById('summarize-btn').onclick = async function() {
   const text = document.getElementById('summary-text').value.trim();
-  if(!text) return;
+  if(!text) {
+    document.getElementById('summary').textContent = 'Enter text to summarize.';
+    document.getElementById('summary').style.display = 'block';
+    return;
+  }
   display('summary','/ai/summarize',{text}, this);
 };
 
 document.getElementById('summarize-file-btn').onclick = async function() {
   const fid = document.getElementById('file-select').value;
-  if(!fid) return;
+  if(!fid) {
+    document.getElementById('summary').textContent = 'Select a file to summarize.';
+    document.getElementById('summary').style.display = 'block';
+    return;
+  }
   display('summary','/ai/summarize',{file_id: fid}, this);
 };
 
 document.getElementById('summarize-note-btn').onclick = async function() {
   const nid = document.getElementById('note-select').value;
-  if(!nid) return;
+  if(!nid) {
+    document.getElementById('summary').textContent = 'Select a note to summarize.';
+    document.getElementById('summary').style.display = 'block';
+    return;
+  }
   display('summary','/ai/summarize',{note_id: nid}, this);
 };
 
 document.getElementById('quiz-btn').onclick = async function() {
   const topic = document.getElementById('quiz-topic').value.trim();
-  if(!topic) return;
+  if(!topic) {
+    document.getElementById('quiz').textContent = 'Enter a topic first.';
+    document.getElementById('quiz').style.display = 'block';
+    return;
+  }
   display('quiz','/ai/quiz',{topic}, this);
+};
+
+document.getElementById('analyze-file-btn').onclick = async function() {
+  const fileId = document.getElementById('file-select').value;
+  if (!fileId) {
+    document.getElementById('file-status').textContent = 'Select a file before analysis.';
+    return;
+  }
+  const status = document.getElementById('file-status');
+  this.disabled = true;
+  this.textContent = 'Analyzing...';
+  status.textContent = 'Extracting readable text...';
+  const result = await apiFetch('/ai/analyze-file', 'POST', { file_id: fileId });
+  this.disabled = false;
+  this.textContent = 'Analyze Selected File';
+  if (!result.success) {
+    status.textContent = result.message;
+    return;
+  }
+  status.textContent = `${result.data.filename}: ${result.data.character_count} characters extracted.`;
 };
 
 document.getElementById('refresh-files').onclick = loadFileOptions;

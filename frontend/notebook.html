@@ -64,7 +64,8 @@
       <div class="card">
         <h3>Resource Files <span id="file-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
         <p class="section-intro">External data sources for AI analysis.</p>
-        <input id="file-input" type="file" class="input-field" />
+        <input id="file-input" type="file" class="input-field" accept=".pdf,.txt,.jpg,.jpeg,.png,.docx" />
+        <p class="section-intro">PDF, TXT, JPG, PNG, or DOCX · Maximum 20 MB</p>
         <button class="btn" id="upload-file" style="width:100%;">Upload Resource</button>
         <p id="file-msg" style="display:none; font-size:0.8rem; margin-top:0.5rem;"></p>
         <ul id="file-list" style="max-height:400px; overflow-y:auto; list-style: none; margin-top: 1rem;"></ul>
@@ -260,25 +261,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('upload-file').onclick = async () => {
     const input = document.getElementById('file-input');
+    const button = document.getElementById('upload-file');
+    const message = document.getElementById('file-msg');
     const file = input.files[0];
-    if (!file) return;
+    if (!file) {
+      showStatus(message, 'Select a resource file first.', true);
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      showStatus(message, 'The selected file exceeds the 20 MB limit.', true);
+      return;
+    }
+    const allowed = ['pdf', 'txt', 'jpg', 'jpeg', 'png', 'docx'];
+    const extension = file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(extension)) {
+      showStatus(message, 'Unsupported file type. Choose PDF, TXT, JPG, PNG, or DOCX.', true);
+      return;
+    }
     const formData = new FormData();
     formData.append('file', file);
+    button.disabled = true;
+    button.textContent = 'Uploading...';
+    showStatus(message, 'Uploading resource...', false);
     const res = await apiUpload('/files', formData);
+    button.disabled = false;
+    button.textContent = 'Upload Resource';
     if (res.success) {
       input.value = '';
-      loadFiles();
+      showStatus(message, 'Resource uploaded successfully.', false);
+      await loadFiles();
+    } else {
+      showStatus(message, res.message || 'Upload failed.', true);
     }
   };
   loadFiles();
 });
 
+function showStatus(element, message, isError) {
+  element.textContent = message;
+  element.style.display = 'block';
+  element.style.padding = '0.6rem';
+  element.style.borderRadius = '6px';
+  element.style.color = isError ? '#ff6b6b' : 'var(--primary)';
+  element.style.background = isError ? 'rgba(255,107,107,0.1)' : 'rgba(0,229,255,0.08)';
+}
+
 async function loadFiles() {
   const res = await apiFetch('/files');
   const list = document.getElementById('file-list');
   const countEl = document.getElementById('file-count');
-  if (!res.success || !Array.isArray(res.data) || res.data.length === 0) {
-    list.innerHTML = '<li style="color: var(--text-muted);">No external data files.</li>';
+  if (!res.success) {
+    list.innerHTML = `<li style="color:#ff6b6b;">${res.message || 'Unable to load resources.'}</li>`;
+    countEl.textContent = '(—)';
+    return;
+  }
+  if (!Array.isArray(res.data) || res.data.length === 0) {
+    list.innerHTML = '<li style="color: var(--text-muted);">No external data files. Upload one to begin AI analysis.</li>';
     countEl.textContent = '(0)';
     return;
   }
@@ -302,7 +340,7 @@ async function loadFiles() {
 
 window.deleteFile = async (id) => { if (confirm('Purge this file?')) { await apiFetch(`/files/${id}`, 'DELETE'); loadFiles(); } };
 window.downloadFile = async (id) => {
-  const res = await fetch(`${API_URL}/files/${id}/download`, { headers: { Authorization: `Bearer ${getToken()}` } });
+  const res = await fetch(`${API_URL}/files/${id}/download`, { headers: { Authorization: 'Bearer ' + getToken() } });
   if (res.ok) {
     const blob = await res.blob();
     const a = document.createElement('a');
@@ -322,7 +360,10 @@ document.getElementById('save-note').onclick = async ()=>{
   const content = document.getElementById('note-content').value;
   const tagsInput = document.getElementById('note-tags').value.trim();
   const tags = tagsInput ? tagsInput.split(',').map(t=>t.trim()).filter(t=>t) : [];
-  if(!sub || !top) return;
+  if(!sub || !top) {
+    showStatus(document.getElementById('drawing-msg'), 'Subject and topic are required.', true);
+    return;
+  }
   const res = await apiFetch('/notes','POST',{subject:sub,topic:top,content,tags});
   if(res.success){
     document.getElementById('note-subject').value = '';
@@ -336,7 +377,10 @@ document.getElementById('save-note').onclick = async ()=>{
 document.getElementById('save-drawing').onclick = async()=>{
   const sub = document.getElementById('note-subject').value.trim();
   const top = document.getElementById('note-topic').value.trim();
-  if(!sub || !top) return;
+  if(!sub || !top) {
+    showStatus(document.getElementById('drawing-msg'), 'Subject and topic are required.', true);
+    return;
+  }
   const drawing = document.getElementById('canvas').toDataURL();
   const res = await apiFetch('/notes','POST',{subject:sub,topic:top,content:'[Visual Map]',drawing});
   if(res.success){

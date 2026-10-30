@@ -46,20 +46,42 @@ def _ensure_indexes(app):
 
 
 def create_app():
-    load_dotenv(PROJECT_ROOT / '.env')
+    load_dotenv(PROJECT_ROOT / '.env', override=True)
     load_dotenv(BASE_DIR / '.env')
+
+    app_env = os.getenv('APP_ENV', os.getenv('FLASK_ENV', 'development')).lower()
+    if app_env not in {'development', 'production'}:
+        raise RuntimeError("APP_ENV must be either 'development' or 'production'")
+
+    if app_env == 'production':
+        required_settings = ('SECRET_KEY', 'JWT_SECRET_KEY', 'MONGO_URI')
+        missing_settings = [
+            name for name in required_settings
+            if not os.getenv(name) or os.getenv(name, '').lower().startswith('replace_with_')
+        ]
+        if missing_settings:
+            raise RuntimeError(
+                'Missing required production environment variables: ' + ', '.join(missing_settings)
+            )
+
+    secret_key = os.getenv('SECRET_KEY')
+    jwt_secret_key = os.getenv('JWT_SECRET_KEY')
+    if app_env == 'development':
+        secret_key = secret_key or 'development-only-secret'
+        jwt_secret_key = jwt_secret_key or secret_key
 
     app = Flask(
         __name__,
         static_folder=str(PROJECT_ROOT / 'frontend'),
         static_url_path='/'
     )
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret')
+    app.config['ENVIRONMENT'] = app_env
+    app.config['SECRET_KEY'] = secret_key
     app.config['MONGO_URI'] = os.getenv(
         'MONGO_URI',
         'mongodb://localhost:27017/ai_study_assistant'
     )
-    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', app.config['SECRET_KEY'])
+    app.config['JWT_SECRET_KEY'] = jwt_secret_key
 
     CORS(app, supports_credentials=True)
     mongo = PyMongo(app)
@@ -82,6 +104,15 @@ def create_app():
     def index():
         return app.send_static_file('index.html')
 
+    @app.route('/api/health')
+    def health():
+        return {
+            'success': True,
+            'status': 'healthy',
+            'environment': app_env,
+            'ai_configured': bool(os.getenv('OPENAI_API_KEY', '').strip()),
+        }
+
     return app
 
 
@@ -91,5 +122,5 @@ app = create_app()
 if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 5000))
-    debug = os.getenv('FLASK_ENV', 'development') == 'development'
+    debug = os.getenv('APP_ENV', os.getenv('FLASK_ENV', 'development')).lower() == 'development'
     app.run(host=host, port=port, debug=debug)

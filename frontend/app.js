@@ -5,7 +5,7 @@ const clearToken = () => localStorage.removeItem('token');
 
 async function apiFetch(endpoint, method='GET', body=null){
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  const token = getToken(); if(token) opts.headers.Authorization = `Bearer ${token}`;
+  const token = getToken(); if (token) opts.headers.Authorization = 'Bearer ' + token;
   if(body) opts.body = JSON.stringify(body);
 
   try {
@@ -30,7 +30,7 @@ async function apiFetch(endpoint, method='GET', body=null){
 async function apiUpload(endpoint, formData) {
   const token = getToken();
   const opts = { method: 'POST', body: formData, headers: {} };
-  if (token) opts.headers.Authorization = `Bearer ${token}`;
+  if (token) opts.headers.Authorization = 'Bearer ' + token;
 
   try {
     const res = await fetch(`${API_URL}${endpoint}`, opts);
