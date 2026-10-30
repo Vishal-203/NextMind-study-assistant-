@@ -6,42 +6,50 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-<div class="navbar"><div>AI Study Assistant</div><div><a href="index.html">Login</a></div></div>
-<div class="container">
+<nav class="navbar">
+  <div class="logo">Neural Flow</div>
+  <a href="index.html">Login</a>
+</nav>
+
 <div class="auth-shell">
   <section class="auth-hero">
-    <div>
-      <p class="auth-kicker">Build Your Routine</p>
-      <h1>Create a study space that feels organized.</h1>
-      <p>Start with notes and planning, then layer AI summaries and quizzes on top of your own materials.</p>
-    </div>
-    <div class="auth-points">
-      <span>Track tasks and deadlines</span>
-      <span>Save notes, tags, and drawings</span>
-      <span>Ask AI using your saved context</span>
+    <p class="auth-kicker">Network Enrollment</p>
+    <h1>Join the neural collective.</h1>
+    <p class="section-intro">Create your node in the network and start synthesizing information with the power of integrated AI.</p>
+    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>🛰️</span> <span>Global Resource Access</span>
+       </div>
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>🔓</span> <span>Unlocked Analysis Tools</span>
+       </div>
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>💎</span> <span>Premium Study Environment</span>
+       </div>
     </div>
   </section>
+
   <section class="auth-card">
-    <h2>Register</h2>
-    <p class="section-intro">Create your account to start organizing your study workflow.</p>
-    <p id="register-msg" style="color:red"></p>
-    <input id="name" class="input-field" placeholder="Full Name" />
-    <input id="email" class="input-field" placeholder="Email" type="email" />
-    <input id="password" class="input-field" placeholder="Password" type="password" />
-    <button class="btn" id="register-btn">Register</button>
+    <h2>New Registration</h2>
+    <p class="section-intro">Initialize your neural identity.</p>
+    <p id="register-msg" style="color:var(--primary); font-size: 0.8rem; margin-bottom: 1rem;"></p>
+    <input id="name" class="input-field" placeholder="Full Identity Label" />
+    <input id="email" class="input-field" placeholder="Network ID (Email)" type="email" />
+    <input id="password" class="input-field" placeholder="Security Protocol" type="password" />
+    <button class="btn" id="register-btn" style="width: 100%;">Create Node</button>
   </section>
 </div>
-</div>
+
 <script src="app.js"></script>
+<script src="neural-bg.js"></script>
 <script>
 const registerBtn = document.getElementById('register-btn');
 registerBtn.onclick = async () => {
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
-
   const result = await apiFetch('/auth/register', 'POST', {name, email, password});
-  if(!result.success){ showMsg(document.getElementById('register-msg'), result.message); return; }
+  if(!result.success){ document.getElementById('register-msg').textContent = result.message; return; }
   window.location.href = 'index.html';
 };
 </script>

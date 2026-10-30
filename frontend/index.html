@@ -6,44 +6,80 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-<div class="navbar"><div>AI Study Assistant</div><div><a href="register.html">Register</a></div></div>
-<div class="container">
+<!-- Welcome Animation Overlay -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-text" id="welcome-text">welcome to your ai study assistant</div>
+</div>
+
+<nav class="navbar">
+  <div class="logo">Neural Flow</div>
+  <a href="register.html">Register</a>
+</nav>
+
 <div class="auth-shell">
   <section class="auth-hero">
-    <div>
-      <p class="auth-kicker">Study Command Center</p>
-      <h1>Learn in one focused workspace.</h1>
-      <p>Write notes, sketch diagrams, plan deadlines, and use AI without jumping between disconnected tools.</p>
-    </div>
-    <div class="auth-points">
-      <span>Notebook with drawing canvas</span>
-      <span>Planner for daily study flow</span>
-      <span>AI support with note and file context</span>
-    </div>
-    <div class="hero-badges">
-      <span class="pill">Lesson Planner</span>
-      <span class="pill">Study Notes</span>
-      <span class="pill">Exam Ready</span>
+    <p class="auth-kicker">Core System Access</p>
+    <h1>The future of knowledge synthesis.</h1>
+    <p class="section-intro">Initialize your study environment with integrated AI context and dynamic information mapping.</p>
+    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>⚡</span> <span>Instant AI Synthesis</span>
+       </div>
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>🔗</span> <span>Linked Knowledge Nodes</span>
+       </div>
+       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
+         <span>📊</span> <span>Optimized Study Cycles</span>
+       </div>
     </div>
   </section>
+
   <section class="auth-card">
-    <h2>Login</h2>
-    <p class="section-intro">Enter your account details to continue into your study dashboard.</p>
-    <p id="login-msg" style="color:red"></p>
-    <input id="email" class="input-field" placeholder="Email" type="email" required />
-    <input id="password" class="input-field" placeholder="Password" type="password" required />
-    <button class="btn" id="login-btn">Login</button>
+    <h2>System Login</h2>
+    <p class="section-intro">Provide credentials for secure terminal access.</p>
+    <p id="login-msg" style="color:var(--primary); font-size: 0.8rem; margin-bottom: 1rem;"></p>
+    <input id="email" class="input-field" placeholder="Email Address" type="email" required />
+    <input id="password" class="input-field" placeholder="Access Protocol" type="password" required />
+    <button class="btn" id="login-btn" style="width: 100%;">Initialize Session</button>
   </section>
 </div>
-</div>
+
 <script src="app.js"></script>
+<script src="neural-bg.js"></script>
 <script>
+// Welcome Animation on Page Load
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('welcome-overlay');
+  const text = document.getElementById('welcome-text');
+  
+  // Check if this is the first visit (not from login/redirect)
+  const hasVisited = sessionStorage.getItem('hasVisitedBefore');
+  
+  if (!hasVisited) {
+    // First visit - show the welcome animation
+    setTimeout(function() {
+      overlay.classList.add('active');
+      text.classList.add('animate-glow');
+      
+      // Hide after 3 seconds
+      setTimeout(function() {
+        overlay.classList.remove('active');
+        overlay.classList.add('hidden');
+        sessionStorage.setItem('hasVisitedBefore', 'true');
+      }, 3000);
+    }, 100);
+  } else {
+    // Already visited - don't show animation
+    overlay.style.display = 'none';
+  }
+});
+
 const loginBtn = document.getElementById('login-btn');
 loginBtn.onclick = async () => {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
   const result = await apiFetch('/auth/login', 'POST', { email, password });
-  if (!result.success) { showMsg(document.getElementById('login-msg'), result.message); return; }
+  if (!result.success) { document.getElementById('login-msg').textContent = result.message; return; }
   setToken(result.data.token); localStorage.setItem('user', JSON.stringify(result.data.user));
   window.location.href='dashboard.html';
 };

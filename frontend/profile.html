@@ -6,62 +6,81 @@
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="navbar"><div>AI Study Assistant</div><div><a href="dashboard.html">Dashboard</a><a href="notebook.html">Notebook</a><a href="ai_assistant.html">AI Assistant</a><a href="planner.html">Planner</a><a href="#" id="logout">Logout</a></div></div>
-<div class="container">
-<section class="page-hero">
-  <p class="hero-kicker">Account Settings</p>
-  <h1>User profile</h1>
-  <p class="hero-subtitle">Manage your personal details, review your study activity, and switch between light and dark themes.</p>
-</section>
-
-<div class="grid-2">
-  <div class="card">
-    <h3>Profile Information</h3>
-    <p class="section-intro">Update the name shown across your workspace.</p>
-    <p id="profile-msg" style="color:var(--success);"></p>
-    <div>
-      <label>Name</label>
-      <input id="profile-name" class="input-field" placeholder="Your name" />
-      <button class="btn" id="update-profile-btn">Update Name</button>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
+      <span>Neural Flow</span>
     </div>
-    <div>
-      <label>Email</label>
-      <input id="profile-email" class="input-field" disabled placeholder="Your email" />
-      <small>Email cannot be changed</small>
+    <nav class="nav-links">
+      <a href="dashboard.html"><span>📊</span> Dashboard</a>
+      <a href="notebook.html"><span>📓</span> Notes</a>
+      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
+      <a href="planner.html"><span>✅</span> Tasks</a>
+      <a href="profile.html" class="active"><span>👤</span> Profile</a>
+      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <section class="page-hero">
+      <p class="auth-kicker">Identity & Access</p>
+      <h1>Profile Control</h1>
+      <p class="section-intro">Manage your neural identity and review system-wide activity metrics.</p>
+    </section>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>User Metadata</h3>
+        <p class="section-intro">Update your primary identification label.</p>
+        <p id="profile-msg" style="color:var(--primary); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+        <div>
+          <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Identity Label</label>
+          <input id="profile-name" class="input-field" placeholder="Enter Label" />
+          <button class="btn" id="update-profile-btn" style="width: 100%;">Sync Identity</button>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Network ID (Email)</label>
+          <input id="profile-email" class="input-field" disabled style="opacity: 0.6;" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Network Activity</h3>
+        <p class="section-intro">Metrics for nodes and task operations.</p>
+        <div id="stats-container">
+          <p>Scanning network...</p>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h3>Statistics</h3>
-    <p class="section-intro">A quick overview of your note and task progress.</p>
-    <div id="stats-container">
-      <p>Loading...</p>
+    <div class="card">
+      <h3>Security Protocol</h3>
+      <p class="section-intro">Update your access credentials.</p>
+      <p id="password-msg" style="color:var(--primary); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+      <div class="grid-3">
+        <input id="old-password" class="input-field" type="password" placeholder="Current Protocol">
+        <input id="new-password" class="input-field" type="password" placeholder="New Protocol">
+        <input id="confirm-password" class="input-field" type="password" placeholder="Confirm Protocol">
+      </div>
+      <button class="btn" id="change-password-btn">Execute Protocol Update</button>
     </div>
-  </div>
+  </main>
 </div>
 
-<div class="card">
-  <h3>Change Password</h3>
-  <p class="section-intro">Use a stronger password when you want to refresh your account security.</p>
-  <p id="password-msg" style="color:var(--success);"></p>
-  <input id="old-password" class="input-field" type="password" placeholder="Current password" />
-  <input id="new-password" class="input-field" type="password" placeholder="New password (min 6 chars)" />
-  <input id="confirm-password" class="input-field" type="password" placeholder="Confirm new password" />
-  <button class="btn" id="change-password-btn">Change Password</button>
-</div>
-
-<div class="card">
-  <h3>Theme</h3>
-  <p class="section-intro">Switch the interface mood to match your environment.</p>
-  <label style="display:flex; align-items:center; gap:0.65rem; cursor:pointer;">
-    <input type="checkbox" id="dark-mode-toggle" />
-    <span>Enable Dark Mode</span>
-  </label>
-</div>
-</div>
 <script src="app.js"></script>
+<script src="neural-bg.js"></script>
 <script>
 requireAuth();
+initDarkMode();
+
+document.getElementById('logout-sidebar').onclick = (e) => {
+  e.preventDefault();
+  clearToken();
+  localStorage.removeItem('user');
+  window.location = 'index.html';
+};
+
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 async function loadProfile() {
@@ -75,13 +94,17 @@ async function loadProfile() {
 async function loadStats() {
   const res = await apiFetch('/user/stats');
   if(res.success) {
-    const stats = res.data;
+    const s = res.data;
     document.getElementById('stats-container').innerHTML = `
-      <div class="stat-grid">
-        <div class="stat-tile"><span class="stat-label">Notes</span><span class="stat-value">${stats.notes}</span></div>
-        <div class="stat-tile"><span class="stat-label">Total Tasks</span><span class="stat-value">${stats.total_tasks}</span></div>
-        <div class="stat-tile"><span class="stat-label">Completed</span><span class="stat-value">${stats.completed_tasks}</span></div>
-        <div class="stat-tile"><span class="stat-label">Pending</span><span class="stat-value">${stats.pending_tasks}</span></div>
+      <div class="grid-2">
+        <div class="card" style="margin-bottom: 0; border-left: 3px solid var(--primary);">
+          <span style="display: block; font-size: 0.7rem; color: var(--text-muted);">NODES</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.notes}</span>
+        </div>
+        <div class="card" style="margin-bottom: 0; border-left: 3px solid var(--primary);">
+          <span style="display: block; font-size: 0.7rem; color: var(--text-muted);">TASKS</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.total_tasks}</span>
+        </div>
       </div>
     `;
   }
@@ -89,13 +112,11 @@ async function loadStats() {
 
 document.getElementById('update-profile-btn').onclick = async () => {
   const name = document.getElementById('profile-name').value.trim();
-  if(!name) { alert('Name is required'); return; }
+  if(!name) return;
   const res = await apiFetch('/user/profile', 'PUT', {name});
   if(res.success) {
-    showMsg(document.getElementById('profile-msg'), 'Profile updated successfully');
+    document.getElementById('profile-msg').textContent = 'Identity synced successfully.';
     localStorage.setItem('user', JSON.stringify({...user, name}));
-  } else {
-    alert(res.message);
   }
 };
 
@@ -103,25 +124,16 @@ document.getElementById('change-password-btn').onclick = async () => {
   const old_pwd = document.getElementById('old-password').value;
   const new_pwd = document.getElementById('new-password').value;
   const confirm_pwd = document.getElementById('confirm-password').value;
-
-  if(!old_pwd || !new_pwd || !confirm_pwd) { alert('All fields required'); return; }
-  if(new_pwd !== confirm_pwd) { alert('New passwords do not match'); return; }
-  if(new_pwd.length < 6) { alert('New password must be at least 6 characters'); return; }
-
+  if(!old_pwd || !new_pwd || !confirm_pwd) return;
+  if(new_pwd !== confirm_pwd) { alert('Protocols do not match'); return; }
   const res = await apiFetch('/user/change-password', 'POST', {old_password:old_pwd, new_password:new_pwd});
   if(res.success) {
-    showMsg(document.getElementById('password-msg'), 'Password changed successfully');
+    document.getElementById('password-msg').textContent = 'Protocol updated.';
     document.getElementById('old-password').value = '';
     document.getElementById('new-password').value = '';
     document.getElementById('confirm-password').value = '';
-  } else {
-    alert(res.message);
   }
 };
-
-initDarkMode();
-
-document.getElementById('logout').onclick = () => { clearToken(); localStorage.removeItem('user'); window.location='index.html'; };
 
 loadProfile();
 loadStats();

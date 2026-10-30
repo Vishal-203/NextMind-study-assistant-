@@ -6,96 +6,110 @@
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="navbar"><div>AI Study Assistant</div><div><a href="profile.html">Profile</a><a href="notebook.html">Notebook</a><a href="ai_assistant.html">AI Assistant</a><a href="planner.html">Planner</a><a href="#" id="logout">Logout</a></div></div>
-<div class="container">
-<section class="page-hero">
-  <p class="hero-kicker">Study Dashboard</p>
-  <h1>Welcome back.</h1>
-  <p class="hero-subtitle">Check your momentum, open your latest notes, and jump straight into the next thing you want to study.</p>
-</section>
-
-<div class="highlight-card card">
-  <p class="hero-kicker">Study Checkpoint</p>
-  <h2 id="checkpoint-heading">Ready for your next session.</h2>
-  <p class="section-intro" id="checkpoint-copy">Pick up where you left off with a focused study path, fast note access, and AI-powered review.</p>
-  <div class="badge-group">
-    <span class="pill" id="checkpoint-task">Focus Session</span>
-    <span class="pill" id="checkpoint-count">Priority Tasks</span>
-    <span class="pill" id="checkpoint-note">Quick Summary</span>
-  </div>
-  <div class="checkpoint-meta">
-    <div class="checkpoint-block">
-      <p class="checkpoint-label">Next deadline</p>
-      <p id="checkpoint-deadline">No upcoming deadline</p>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
+      <span>Neural Flow</span>
     </div>
-    <div class="checkpoint-block">
-      <p class="checkpoint-label">Latest note</p>
-      <p id="checkpoint-note-preview">No recent notes</p>
+    <nav class="nav-links">
+      <a href="dashboard.html" class="active"><span>📊</span> Dashboard</a>
+      <a href="notebook.html"><span>📓</span> Notes</a>
+      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
+      <a href="planner.html"><span>✅</span> Tasks</a>
+      <a href="profile.html"><span>👤</span> Profile</a>
+      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <section class="page-hero">
+      <p class="auth-kicker">Study Dashboard</p>
+      <h1>Welcome back.</h1>
+      <p class="section-intro">Your neural network of knowledge is ready. Check your momentum and resume your progress.</p>
+    </section>
+
+    <div class="highlight-card card">
+      <p class="auth-kicker">Status: Optimal</p>
+      <h2 id="checkpoint-heading">Ready for your next session.</h2>
+      <p class="section-intro" id="checkpoint-copy">Pick up where you left off with a focused study path.</p>
+      <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <span class="badge badge-success" id="checkpoint-task">Focus Session</span>
+        <span class="badge badge-warning" id="checkpoint-count">Priority Tasks</span>
+        <span class="badge badge-success" id="checkpoint-note">Quick Summary</span>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="margin-bottom: 0;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Next deadline</p>
+          <p id="checkpoint-deadline" style="font-weight: 700;">No upcoming deadline</p>
+        </div>
+        <div class="card" style="margin-bottom: 0;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Latest note</p>
+          <p id="checkpoint-note-preview" style="font-weight: 700;">No recent notes</p>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button class="btn" id="checkpoint-action">Open Planner</button>
+        <button class="btn btn-secondary" id="checkpoint-note-action">Open Notebook</button>
+      </div>
     </div>
-  </div>
-  <div class="action-grid" style="margin-top:1.25rem;">
-    <button class="btn" id="checkpoint-action">Open Planner</button>
-    <button class="btn btn-secondary" id="checkpoint-note-action">Open Notebook</button>
-  </div>
-</div>
 
-<div class="grid-2">
-  <div class="card">
-    <h3>Profile</h3>
-    <p class="section-intro">Your account details and a shortcut to settings.</p>
-    <p id="user-name" style="font-size:1.25rem; color:var(--brand-strong); font-weight:700;"></p>
-    <p id="user-email" style="color:var(--text-faint);"></p>
-    <a href="profile.html" class="btn">View Profile</a>
-  </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>System Stats</h3>
+        <p class="section-intro">Real-time study metrics.</p>
+        <div id="quick-stats">
+          <p>Analyzing system data...</p>
+        </div>
+      </div>
 
-  <div class="card">
-    <h3>Quick Stats</h3>
-    <p class="section-intro">A live snapshot of your notes and planner activity.</p>
-    <div id="quick-stats">
-      <p>Loading stats...</p>
+      <div class="card">
+        <h3>Active Tasks</h3>
+        <p class="section-intro">Your top priorities for this cycle.</p>
+        <div class="action-grid" style="display: grid; grid-template-columns: 1fr; gap: 0.5rem;">
+           <!-- Tasks will be injected here if I had a list, but for now I'll just keep the buttons -->
+           <button class="btn" onclick="window.location='planner.html'">Manage All Tasks</button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <div class="card">
+      <h3>Knowledge Nodes</h3>
+      <p class="section-intro">Recently modified information structures.</p>
+      <div id="recent-notes-container">
+        <p>Fetching notes from network...</p>
+      </div>
+    </div>
+  </main>
 </div>
 
-<div class="card">
-  <h3>Quick Actions</h3>
-  <p class="section-intro">Move into the part of the workspace you need right now.</p>
-  <div class="action-grid">
-    <button class="btn" onclick="window.location='notebook.html'">Create Note</button>
-    <button class="btn" onclick="window.location='planner.html'">Add Task</button>
-    <button class="btn" onclick="window.location='ai_assistant.html'">Ask AI</button>
-    <button class="btn" onclick="window.location='profile.html'">Settings</button>
-  </div>
-</div>
-
-<div class="card">
-  <h3>Recent Notes</h3>
-  <p class="section-intro">Your latest notebook entries, ready to reopen.</p>
-  <div id="recent-notes-container">
-    <p>Loading your notes...</p>
-  </div>
-</div>
-</div>
 <script src="app.js"></script>
+<script src="neural-bg.js"></script>
 <script>
 requireAuth();
 initDarkMode();
-const user = JSON.parse(localStorage.getItem('user') || '{}');
-if(user.name){
-  document.getElementById('user-name').textContent = user.name;
-  document.getElementById('user-email').textContent = user.email;
-}
+
+document.getElementById('logout-sidebar').onclick = (e) => {
+  e.preventDefault();
+  clearToken();
+  localStorage.removeItem('user');
+  window.location = 'index.html';
+};
 
 async function loadStats() {
   const res = await apiFetch('/user/stats');
   if(res.success) {
     const s = res.data;
     document.getElementById('quick-stats').innerHTML = `
-      <div class="stat-grid">
-        <div class="stat-tile"><span class="stat-label">Notes</span><span class="stat-value">${s.notes}</span></div>
-        <div class="stat-tile"><span class="stat-label">Total Tasks</span><span class="stat-value">${s.total_tasks}</span></div>
-        <div class="stat-tile"><span class="stat-label">Completed</span><span class="stat-value">${s.completed_tasks}</span></div>
-        <div class="stat-tile"><span class="stat-label">Pending</span><span class="stat-value">${s.pending_tasks}</span></div>
+      <div class="grid-2">
+        <div style="padding: 1rem; border-left: 2px solid var(--primary);">
+          <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">NOTES</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.notes}</span>
+        </div>
+        <div style="padding: 1rem; border-left: 2px solid var(--primary);">
+          <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">PENDING</span>
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.pending_tasks}</span>
+        </div>
       </div>
     `;
   }
@@ -107,30 +121,25 @@ async function loadRecentNotes() {
   const items = Array.isArray(res?.data?.items) ? res.data.items : Array.isArray(res?.data) ? res.data : [];
 
   if(res.success && items.length > 0) {
-    container.innerHTML = '<ul>';
-    items.slice(0, 5).forEach(n => {
+    let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+    items.slice(0, 3).forEach(n => {
       const date = new Date(n.updated_at).toLocaleDateString();
-      container.innerHTML += `
-        <li style="padding:0.9rem 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+      html += `
+        <div class="card" style="margin-bottom: 0; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary);">
           <div>
-            <strong style="color:var(--text);">${n.subject}</strong><br>
-            <small>${n.topic} • ${date}</small>
+            <div style="font-weight: 700; color: var(--text-main);">${n.subject}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${n.topic} • ${date}</div>
           </div>
-          <span style="color:var(--brand); font-weight:700;">Open</span>
-        </li>
+          <a href="notebook.html" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.7rem;">Access</a>
+        </div>
       `;
     });
-    container.innerHTML += '</ul>';
+    html += '</div>';
+    container.innerHTML = html;
   } else if(res.success) {
-    container.innerHTML = '<p class="empty-state">No notes yet. <a href="notebook.html">Create your first note</a>.</p>';
+    container.innerHTML = '<p class="section-intro">No knowledge nodes found. <a href="notebook.html" style="color: var(--primary);">Initialize your first note</a>.</p>';
   }
 }
-
-document.getElementById('logout').onclick = () => {
-  clearToken();
-  localStorage.removeItem('user');
-  window.location = 'index.html';
-};
 
 async function loadCheckpoint() {
   const taskRes = await apiFetch('/tasks?limit=1');
@@ -153,31 +162,19 @@ async function loadCheckpoint() {
 
   if (nextTask) {
     checkpointTask.textContent = nextTask.title;
-    checkpointHeading.textContent = 'Next task ready';
-    checkpointCopy.textContent = `Start with your next task: ${nextTask.title}.`;
-    checkpointDeadline.textContent = nextTask.deadline ? new Date(nextTask.deadline).toLocaleDateString() : 'Deadline not set';
+    checkpointHeading.textContent = 'Neural match: Next task ready';
+    checkpointCopy.textContent = `Resume your focus cycle with: ${nextTask.title}.`;
+    checkpointDeadline.textContent = nextTask.deadline ? nextTask.deadline : 'Continuous';
     checkpointAction.textContent = 'Go to Planner';
-  } else {
-    checkpointTask.textContent = 'No upcoming task';
-    checkpointDeadline.textContent = 'No upcoming deadline';
-    checkpointAction.textContent = 'Add Task';
   }
 
   if (pendingTasks !== null) {
-    checkpointCount.textContent = `${pendingTasks} pending task${pendingTasks === 1 ? '' : 's'}`;
-  } else {
-    checkpointCount.textContent = 'Task summary';
+    checkpointCount.textContent = `${pendingTasks} Active Tasks`;
   }
 
   if (latestNote) {
-    checkpointNote.textContent = `${latestNote.subject || 'Untitled'} • ${latestNote.topic || 'No topic'}`;
-    const notePreview = latestNote.content ? latestNote.content.trim().slice(0, 90) : 'No content yet.';
-    checkpointNotePreview.textContent = notePreview + (notePreview.length >= 90 ? '…' : '');
-    checkpointNoteAction.textContent = 'Open Latest Note';
-  } else {
-    checkpointNote.textContent = 'No recent notes';
-    checkpointNotePreview.textContent = 'Create a note to capture your study ideas.';
-    checkpointNoteAction.textContent = 'Create Note';
+    checkpointNote.textContent = latestNote.subject;
+    checkpointNotePreview.textContent = latestNote.topic || 'General knowledge';
   }
 
   checkpointAction.onclick = () => window.location = 'planner.html';

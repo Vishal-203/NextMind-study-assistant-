@@ -6,41 +6,66 @@
 <link rel='stylesheet' href='styles.css'>
 </head>
 <body>
-<div class='navbar'><div>AI Study Assistant</div><div><a href='dashboard.html'>Dashboard</a><a href='profile.html'>Profile</a><a href='notebook.html'>Notebook</a><a href='ai_assistant.html'>AI Assistant</a><a href='#' id='logout'>Logout</a></div></div>
-<div class='container'>
-<section class='page-hero'>
-  <p class='hero-kicker'>Study Planner</p>
-  <h1>Plan the work before the rush.</h1>
-  <p class='hero-subtitle'>Capture deadlines, set priorities, and keep your next study actions visible in one place.</p>
-</section>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
+      <span>Neural Flow</span>
+    </div>
+    <nav class="nav-links">
+      <a href="dashboard.html"><span>📊</span> Dashboard</a>
+      <a href="notebook.html"><span>📓</span> Notes</a>
+      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
+      <a href="planner.html" class="active"><span>✅</span> Tasks</a>
+      <a href="profile.html"><span>👤</span> Profile</a>
+      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+    </nav>
+  </aside>
 
-<div class='grid-2'>
-  <div class='card'>
-    <h3>Add Task</h3>
-    <p class='section-intro'>Create a task with a deadline and priority so it stays visible in your schedule.</p>
-    <input id='task-title' class='input-field' placeholder='Task title'>
-    <input id='task-deadline' class='input-field' type='date'>
-    <select id='task-priority' class='input-field'>
-      <option value='low'>Priority: Low</option>
-      <option value='medium' selected>Priority: Medium</option>
-      <option value='high'>Priority: High</option>
-    </select>
-    <button class='btn' id='add-task'>Add Task</button>
-  </div>
+  <main class="main-content">
+    <section class="page-hero">
+      <p class="auth-kicker">Operation Management</p>
+      <h1>Task Planner</h1>
+      <p class="section-intro">Optimize your study cycles and manage task priorities within the neural network.</p>
+    </section>
 
-  <div class='card'>
-    <h3>Tasks</h3>
-    <p class='section-intro'>Review pending work, mark items complete, or remove finished plans.</p>
-    <ul id='task-list'></ul>
-    <div id='task-pagination' style='display:flex; gap:0.5rem; align-items:center; margin-top:1rem; flex-wrap:wrap;'></div>
-  </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Initialize Task</h3>
+        <p class="section-intro">Create a new task node with specific metrics.</p>
+        <input id="task-title" class="input-field" placeholder="Task Title">
+        <input id="task-deadline" class="input-field" type="date">
+        <select id="task-priority" class="input-field">
+          <option value="low">Priority: Low</option>
+          <option value="medium" selected>Priority: Medium</option>
+          <option value="high">Priority: High</option>
+        </select>
+        <button class="btn" id="add-task" style="width: 100%;">Commit Task</button>
+      </div>
+
+      <div class="card">
+        <h3>Active Operations</h3>
+        <p class="section-intro">Review and manage current task states.</p>
+        <ul id="task-list" style="list-style: none;"></ul>
+        <div id="task-pagination" style="display:flex; gap:0.5rem; align-items:center; margin-top:1rem; flex-wrap:wrap;"></div>
+      </div>
+    </div>
+  </main>
 </div>
-</div>
-<script src='app.js'></script>
+
+<script src="app.js"></script>
+<script src="neural-bg.js"></script>
 <script>
 requireAuth();
 initDarkMode();
-document.getElementById('logout').onclick = () => { clearToken(); localStorage.removeItem('user'); window.location='index.html'; };
+
+document.getElementById('logout-sidebar').onclick = (e) => {
+  e.preventDefault();
+  clearToken();
+  localStorage.removeItem('user');
+  window.location = 'index.html';
+};
+
 let taskPage = 1;
 const taskLimit = 10;
 
@@ -48,32 +73,35 @@ async function loadTasks(){
   const res = await apiFetch(`/tasks?page=${taskPage}&limit=${taskLimit}`);
   const container = document.getElementById('task-list');
   const pagination = document.getElementById('task-pagination');
-  if(!res.success){ container.innerHTML = `<li style="color:var(--danger);">${res.message}</li>`; pagination.innerHTML=''; return; }
+  if(!res.success) return;
   const tasks = Array.isArray(res.data.items) ? res.data.items : [];
   container.innerHTML='';
   if(tasks.length === 0) {
-    container.innerHTML='<li class="empty-state">No tasks yet. Add one to get started.</li>';
+    container.innerHTML='<li style="color: var(--text-muted);">No active operations.</li>';
   } else {
     tasks.forEach(task=>{
       const li=document.createElement('li');
       li.className='card';
-      li.style.listStyle='none';
-      li.style.paddingLeft='1.2rem';
+      li.style.padding='1rem';
+      li.style.marginBottom='0.75rem';
+      li.style.borderLeft='4px solid var(--primary)';
       const statusClass = task.status === 'completed' ? 'badge-success' : 'badge-warning';
       const priorityClass = task.priority === 'high' ? 'badge-danger' : task.priority === 'medium' ? 'badge-warning' : 'badge-success';
       li.innerHTML=`
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-          <strong style="color:var(--text); font-size:1rem;">${task.title}</strong>
-          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+          <div>
+            <div style="font-weight: 700;">${task.title}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Deadline: ${task.deadline}</div>
+          </div>
+          <div style="display:flex; flex-direction: column; gap:0.25rem; align-items: flex-end;">
             <span class="badge ${statusClass}">${task.status}</span>
             <span class="badge ${priorityClass}">${task.priority}</span>
           </div>
         </div>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-          <button class="btn" onclick="markDone('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">${task.status === 'completed' ? 'Mark Pending' : 'Mark Complete'}</button>
-          <button class="btn btn-muted" onclick="removeTask('${task.id}')">Delete</button>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+          <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="markDone('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">${task.status === 'completed' ? 'Revert' : 'Complete'}</button>
+          <button class="btn btn-muted" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="removeTask('${task.id}')">Purge</button>
         </div>
-        <div style="color:var(--text-soft);">Deadline: ${task.deadline}</div>
       `;
       container.appendChild(li);
     });
@@ -85,41 +113,28 @@ function updateTaskPagination(data){
   const pagination = document.getElementById('task-pagination');
   if(!data || data.pages <= 1){ pagination.innerHTML=''; return; }
   pagination.innerHTML = `
-    <button class="btn" ${data.page <= 1 ? 'disabled' : ''} onclick="changeTaskPage(-1)">Prev</button>
-    <span style="font-size:0.95rem; color:var(--text-soft);">Page ${data.page} of ${data.pages} (${data.total} tasks)</span>
-    <button class="btn" ${data.page >= data.pages ? 'disabled' : ''} onclick="changeTaskPage(1)">Next</button>
+    <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" ${data.page <= 1 ? 'disabled' : ''} onclick="changeTaskPage(-1)">Prev</button>
+    <span style="font-size:0.8rem; color:var(--text-muted);">Page ${data.page} of ${data.pages}</span>
+    <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" ${data.page >= data.pages ? 'disabled' : ''} onclick="changeTaskPage(1)">Next</button>
   `;
 }
 
 window.changeTaskPage = (delta) => { taskPage = Math.max(1, taskPage + delta); loadTasks(); };
-
-window.markDone = async(id, newStatus)=>{
-  const res=await apiFetch(`/tasks/${id}`, 'PUT', {status:newStatus});
-  if(!res.success){ alert(res.message); return; }
-  loadTasks();
-};
-
-window.removeTask = async(id)=>{
-  if(!confirm('Remove this task?')) return;
-  const res=await apiFetch(`/tasks/${id}`, 'DELETE');
-  if(!res.success){ alert(res.message); return; }
-  loadTasks();
-};
+window.markDone = async(id, newStatus)=>{ if((await apiFetch(`/tasks/${id}`, 'PUT', {status:newStatus})).success) loadTasks(); };
+window.removeTask = async(id)=>{ if(confirm('Purge task?')) { if((await apiFetch(`/tasks/${id}`, 'DELETE')).success) loadTasks(); } };
 
 document.getElementById('add-task').onclick = async()=>{
   const title = document.getElementById('task-title').value.trim();
   const deadline = document.getElementById('task-deadline').value;
   const priority = document.getElementById('task-priority').value;
-  if(!title||!deadline){ alert('Title and deadline required'); return; }
-  const res=await apiFetch('/tasks','POST',{title,deadline,priority});
-  if(!res.success){ alert(res.message); return; }
-  document.getElementById('task-title').value='';
-  document.getElementById('task-deadline').value='';
-  document.getElementById('task-priority').value='medium';
-  taskPage = 1;
-  loadTasks();
+  if(!title||!deadline) return;
+  if((await apiFetch('/tasks','POST',{title,deadline,priority})).success) {
+    document.getElementById('task-title').value='';
+    document.getElementById('task-deadline').value='';
+    taskPage = 1;
+    loadTasks();
+  }
 };
-
 loadTasks();
 </script>
 </body>

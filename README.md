@@ -42,28 +42,65 @@ The app runs as a local Flask website and the browser pages use JWT tokens to ac
 
 ### 1. Clone and Setup
 
+Replace `<repo-url>` with the repository HTTPS URL (example shown).
+
 ```bash
-git clone <repo-url>
-cd project-va
+# Clone the repository
+git clone https://github.com/Vishal-203/NexMind-study-assistant-.git
+cd NexMind-study-assistant-
+
+# Create a Python virtual environment (cross-platform)
 python -m venv venv
 ```
 
-### 2. Windows - Activate Virtual Environment
+### 2. Activate Virtual Environment
+
+On macOS / Linux (bash, zsh):
+
+```bash
+source venv/bin/activate
+python -m pip install -r backend/requirements.txt
+```
+
+On Windows PowerShell:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+venv\Scripts\Activate.ps1
+python -m pip install -r backend/requirements.txt
+```
+
+On Windows cmd.exe:
+
+```cmd
+venv\Scripts\activate.bat
+python -m pip install -r backend/requirements.txt
+```
+
+> If your system Python points to python3, prefix commands with `python3`.
+
+If the frontend has Node dependencies (check `frontend/`), install them from the repo root:
+
+```bash
+# from repo root
+# if there is a package.json inside frontend/
+cd frontend && npm install && cd ..
 ```
 
 ### 3. Configuration
 
-Create a `.env` file in the project root:
+Create `.env` in the **project root** by copying the included example:
 
-```env
-SECRET_KEY=your-secret-key-here
-JWT_SECRET_KEY=your-jwt-secret-key
-MONGO_URI=mongodb://localhost:27017/ai_study_assistant
-OPENAI_API_KEY=sk-your-openai-key-here
+```bash
+cp .env.example .env
 ```
+
+On Windows PowerShell, use `Copy-Item .env.example .env` if `cp` is unavailable.
+
+Open `.env` and set the required values. Do not commit `.env` to Git.
+
+- `APP_ENV=development` enables the local development configuration and Flask debug mode.
+- `APP_ENV=production` requires `SECRET_KEY`, `JWT_SECRET_KEY`, and `MONGO_URI` to be set explicitly. Production debug mode is disabled.
+- The hosting provider should receive these values as platform environment variables rather than a committed `.env` file.
 
 ### 4. Database Setup
 
@@ -76,16 +113,23 @@ mongod
 
 ### 5. Start the Server
 
-```powershell
-.\venv\Scripts\python.exe backend/app.py
+With the virtual environment active, you can start the backend:
+
+```bash
+# From repository root
+python backend/app.py
+# or (if you prefer Flask cli)
+# export FLASK_APP=backend.app (macOS/Linux)
+# set FLASK_APP=backend.app (Windows)
+# flask run
 ```
 
-The server will run on `http://localhost:5000`
+The server will run on `http://localhost:5000` by default.
 
 ## Project Structure
 
 ```
-project-va/
+NexMind-study-assistant-/
 ├── backend/
 │   ├── app.py                 # Main Flask app
 │   ├── requirements.txt        # Python dependencies
@@ -117,7 +161,8 @@ project-va/
 │   ├── ai_assistant.html     # AI features
 │   ├── app.js               # API utilities & helpers
 │   └── styles.css           # Global styling
-├── .env                      # Environment variables
+├── .env                      # Environment variables (DO NOT COMMIT)
+├── .env.example              # Example environment variables (this file)
 ├── .gitignore               # Git ignore rules
 └── README.md                # This file
 ```
@@ -197,16 +242,19 @@ project-va/
 
 | Variable | Description | Example |
 |----------|-------------|---------|
+| `APP_ENV` | Runtime environment: `development` or `production` | `development` |
 | `SECRET_KEY` | Flask secret key | `your-secret-key` |
 | `JWT_SECRET_KEY` | JWT signing key | `your-jwt-key` |
 | `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/ai_study_assistant` |
-| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
+| `OPENAI_API_KEY` | OpenAI-compatible or Groq API key | `gsk_...` |
+| `OPENAI_BASE_URL` | OpenAI-compatible API base URL | `https://api.groq.com/openai/v1` |
+| `OPENAI_MODEL` | AI model available from the configured provider | `allam-2-7b` |
 
 ## Troubleshooting
 
 ### "ModuleNotFoundError: No module named 'flask'"
 ```powershell
-.\venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+python -m pip install -r backend/requirements.txt
 ```
 
 ### "MongoDB connection refused"
@@ -254,15 +302,30 @@ The project uses Flask debug mode for development. Test endpoints via:
 - [ ] Use production WSGI server (gunicorn)
 - [ ] Compress canvas drawings before storage
 
-### Example Production Setup
+### Deploy to Render
+
+The application is currently deployed at **https://nextmind-study-assistant.onrender.com**.
+
+To deploy or update it yourself:
+
+1. Create a MongoDB Atlas database and copy its connection string.
+2. Add the repository to Render as a Blueprint using [render.yaml](render.yaml).
+3. Configure these environment variables in Render:
+   - `MONGO_URI`
+   - `OPENAI_API_KEY`
+   - `OPENAI_BASE_URL=https://api.groq.com/openai/v1`
+   - `OPENAI_MODEL=allam-2-7b`
+4. Render generates `SECRET_KEY` and `JWT_SECRET_KEY` automatically from the Blueprint.
+5. Verify deployment status at `https://nextmind-study-assistant.onrender.com/api/health`.
+
+For a local production-style server after setting production environment variables:
 
 ```bash
-# Install production server
-pip install gunicorn
-
-# Run with gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 backend.app:app
+python -m pip install -r backend/requirements.txt
+python backend/start.py
 ```
+
+> Important: uploaded files stored on Render's filesystem are ephemeral on the free plan and may be lost when the service restarts or redeploys. Configure persistent disk storage or migrate uploads to object storage before relying on file uploads in production.
 
 ## Optional Enhancements
 

@@ -24,10 +24,10 @@ python -m venv venv
 # 4. Install dependencies
 pip install -r backend/requirements.txt
 
-# 5. Create .env file
-cp backend/.env.example backend/.env
-# Edit .env with your credentials
-
+# 5. Create the project-root `.env` file
+cp .env.example .env
+# Edit .env with your local credentials.
+# Do not place the file inside backend/; backend/app.py reads the root .env.
 # 6. Start backend server
 python backend/app.py
 # Server runs on http://localhost:5000
