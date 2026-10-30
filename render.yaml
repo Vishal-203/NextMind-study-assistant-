@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     buildCommand: python -m pip install -r backend/requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 backend.app:app
+    startCommand: python backend/start.py
     healthCheckPath: /api/health
     envVars:
       - key: APP_ENV
