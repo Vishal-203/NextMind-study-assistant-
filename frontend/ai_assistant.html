@@ -5,83 +5,67 @@
 <title>AI Assistant | AI Study Assistant</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
-    </div>
-    <nav class="nav-links">
-      <a href="dashboard.html"><span>📊</span> Dashboard</a>
-      <a href="notebook.html"><span>📓</span> Notes</a>
-      <a href="ai_assistant.html" class="active"><span>🧠</span> AI Assistant</a>
-      <a href="planner.html"><span>✅</span> Tasks</a>
-      <a href="profile.html"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+<body class="ai-chat-page">
+<div class="ai-shell">
+  <header class="ai-topbar">
+    <a class="ai-brand" href="dashboard.html" aria-label="NextMind dashboard"><span class="ai-brand-mark">N</span><span>NextMind</span></a>
+    <nav class="ai-tabs" aria-label="AI workspace navigation">
+      <button class="ai-tab active" type="button">Chat</button>
+      <a class="ai-tab" href="notebook.html">Archive</a>
+      <a class="ai-tab" href="profile.html">Settings</a>
     </nav>
-  </aside>
+    <div class="ai-top-actions">
+      <button class="ai-icon-btn" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+      <a class="ai-upgrade" href="dashboard.html">Dashboard</a>
+    </div>
+  </header>
 
-  <main class="main-content">
-    <section class="page-hero">
-      <p class="auth-kicker">Neural Intelligence</p>
-      <h1>AI Workspace</h1>
-      <p class="section-intro">Connect your knowledge nodes and external resources to the core AI engine for deep synthesis.</p>
+  <main class="ai-workspace">
+    <section class="ai-welcome" id="ai-welcome">
+      <div class="ai-spark">✦</div>
+      <p class="ai-date-label">NextMind AI</p>
+      <h1>Good morning.<br><span>What will you learn today?</span></h1>
     </section>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>Resource Injection</h3>
-        <p class="section-intro">Select an external data file as context.</p>
-        <select id="file-select" class="input-field">
-          <option value="">-- No file selected --</option>
+    <div id="answer" class="ai-answer result-panel" style="display:none"></div>
+
+    <section class="ai-composer-wrap" aria-label="Ask NextMind">
+      <div class="ai-context-row">
+        <select id="file-select" class="ai-context-select" aria-label="Study file">
+          <option value="">⌁ Deep Thinking</option>
         </select>
-        <button class="btn" id="refresh-files" style="width: 100%;">Refresh Data</button>
-        <button class="btn btn-secondary" id="analyze-file-btn" style="width: 100%; margin-top:0.5rem;">Analyze Selected File</button>
-        <p id="file-status" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
-      </div>
-
-      <div class="card">
-        <h3>Node Connection</h3>
-        <p class="section-intro">Select a knowledge node for local context.</p>
-        <select id="note-select" class="input-field">
-          <option value="">-- No note selected --</option>
+        <select id="note-select" class="ai-context-select" aria-label="Study note">
+          <option value="">✦ Study Context</option>
         </select>
-        <button class="btn" id="refresh-notes" style="width: 100%;">Refresh Nodes</button>
-        <p id="note-status" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
       </div>
-    </div>
-
-    <div class="card highlight-card">
-      <h3>Query Engine</h3>
-      <p class="section-intro">Ask questions about your study material. Context will be automatically synthesized.</p>
-      <textarea id="question" class="input-field" rows="3" placeholder="Analyze knowledge nodes..."></textarea>
-      <button class="btn" id="ask-btn">Execute Query</button>
-      <div id="answer" class="result-panel" style="display: none;"></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>Synthesis Engine</h3>
-        <p class="section-intro">Summarize raw data or connected nodes.</p>
-        <textarea id="summary-text" class="input-field" rows="3" placeholder="Paste raw data for synthesis..."></textarea>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-          <button class="btn" id="summarize-btn">Summarize Text</button>
-          <button class="btn btn-secondary" id="summarize-file-btn">Summarize File</button>
-          <button class="btn btn-secondary" id="summarize-note-btn">Summarize Node</button>
-        </div>
-        <div id="summary" class="result-panel" style="display: none;"></div>
+      <div class="ai-composer">
+        <textarea id="question" rows="1" placeholder="Ask anything about your study material..."></textarea>
+        <button class="ai-send" id="ask-btn" type="button" aria-label="Send question">↑</button>
       </div>
-
-      <div class="card">
-        <h3>Evaluation Generator</h3>
-        <p class="section-intro">Generate active recall metrics for any topic.</p>
-        <input id="quiz-topic" class="input-field" placeholder="Enter topic for evaluation" />
-        <button class="btn" id="quiz-btn" style="width: 100%;">Generate Evaluation</button>
-        <pre id="quiz" style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; white-space: pre-wrap; display: none;"></pre>
+      <div class="ai-status-row">
+        <span id="file-status">Deep search</span>
+        <span id="note-status">Study context</span>
       </div>
-    </div>
+      <button class="sr-only" id="refresh-files" type="button">Refresh files</button>
+      <button class="sr-only" id="refresh-notes" type="button">Refresh notes</button>
+      <button class="sr-only" id="analyze-file-btn" type="button">Analyze file</button>
+    </section>
+
+    <section class="ai-starter-grid" aria-label="AI tools">
+      <button class="ai-starter-card" id="starter-deep" type="button">Explain a difficult<br>concept from my materials</button>
+      <button class="ai-starter-card" id="starter-summary" type="button">Summarize what I<br>need to revise</button>
+      <button class="ai-starter-card" id="starter-quiz" type="button">Create a quiz to test<br>my understanding</button>
+      <button class="ai-starter-card" id="starter-plan" type="button">Build a study plan<br>from my notes</button>
+      <button class="ai-starter-card" id="starter-source" type="button">Generate source<br>ideas for a topic</button>
+    </section>
+
+    <section class="ai-tools" aria-label="Advanced AI tools">
+      <div class="ai-tool-item"><label for="summary-text">Synthesis</label><textarea id="summary-text" rows="2" placeholder="Paste text or choose study context..."></textarea><div class="ai-tool-actions"><button id="summarize-btn" type="button">Summarize</button><button id="summarize-file-btn" type="button">File</button><button id="summarize-note-btn" type="button">Note</button></div><div id="summary" class="ai-answer result-panel" style="display:none"></div></div>
+      <div class="ai-tool-item"><label for="quiz-topic">Evaluation</label><input id="quiz-topic" placeholder="Enter a topic" /><button id="quiz-btn" type="button">Generate quiz</button><pre id="quiz" style="display:none"></pre></div>
+    </section>
   </main>
+
+  <footer class="ai-footer"><span>NextMind AI</span><span>Study assistant</span><span>Private workspace</span></footer>
 </div>
 
 <script src="app.js"></script>
@@ -89,6 +73,39 @@
 <script>
 requireAuth();
 initDarkMode();
+if (localStorage.getItem('darkMode') === 'false') {
+  document.body.classList.add('ai-light-theme');
+}
+
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.onclick = () => {
+    const useLightTheme = document.body.classList.toggle('ai-light-theme');
+    localStorage.setItem('darkMode', useLightTheme ? 'false' : 'true');
+    themeToggle.textContent = useLightTheme ? '☀' : '◐';
+  };
+}
+
+const starterPrompts = {
+  'starter-deep': 'Explain the most difficult concept in my selected study material in simple terms.',
+  'starter-summary': 'Create a focused revision summary from my selected study context.',
+  'starter-quiz': '',
+  'starter-plan': 'Create a practical study plan from my selected notes and resources.',
+  'starter-source': 'Suggest reliable source topics and search areas for the subject in my study context.'
+};
+Object.entries(starterPrompts).forEach(([id, prompt]) => {
+  const button = document.getElementById(id);
+  if (!button) return;
+  button.onclick = () => {
+    if (id === 'starter-quiz') {
+      document.getElementById('quiz-topic').focus();
+      document.getElementById('quiz-topic').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    document.getElementById('question').value = prompt;
+    document.getElementById('ask-btn').click();
+  };
+});
 
 document.getElementById('logout-sidebar').onclick = (e) => {
   e.preventDefault();
