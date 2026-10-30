@@ -5,44 +5,56 @@
 <title>AI Study Assistant - Login</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="auth-page">
-<!-- Welcome Animation Overlay -->
+<body class="auth-page cosmos-auth">
 <div class="welcome-overlay" id="welcome-overlay">
-  <div class="welcome-text" id="welcome-text">welcome to your ai study assistant</div>
+  <div class="welcome-text" id="welcome-text">welcome to nextmind</div>
 </div>
 
-<nav class="navbar">
-  <div class="logo">Neural Flow</div>
-  <a href="register.html">Register</a>
-</nav>
+<main class="cosmos-shell">
+  <header class="cosmos-brand">
+    <div class="cosmos-orb"><span></span></div>
+    <h1>NextMind</h1>
+    <p>Stellar authentication portal</p>
+  </header>
 
-<div class="auth-shell">
-  <section class="auth-hero">
-    <p class="auth-kicker">Core System Access</p>
-    <h1>The future of knowledge synthesis.</h1>
-    <p class="section-intro">Initialize your study environment with integrated AI context and dynamic information mapping.</p>
-    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>⚡</span> <span>Instant AI Synthesis</span>
-       </div>
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>🔗</span> <span>Linked Knowledge Nodes</span>
-       </div>
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>📊</span> <span>Optimized Study Cycles</span>
-       </div>
+  <section class="cosmos-card" aria-labelledby="auth-title">
+    <div class="cosmos-tabs" role="tablist">
+      <button class="active" type="button" role="tab" aria-selected="true">Sign in</button>
+      <a href="register.html" role="tab">Sign up</a>
     </div>
-  </section>
 
-  <section class="auth-card">
-    <h2>System Login</h2>
-    <p class="section-intro">Provide credentials for secure terminal access.</p>
-    <p id="login-msg" style="color:var(--primary); font-size: 0.8rem; margin-bottom: 1rem;"></p>
-    <input id="email" class="input-field" placeholder="Email Address" type="email" required />
-    <input id="password" class="input-field" placeholder="Access Protocol" type="password" required />
-    <button class="btn" id="login-btn" style="width: 100%;">Initialize Session</button>
+    <h2 id="auth-title" class="sr-only">Sign in</h2>
+    <p id="login-msg" class="cosmos-message" role="alert"></p>
+
+    <label class="cosmos-field">
+      <span>Email address</span>
+      <input id="email" placeholder="you@domain.com" type="email" autocomplete="email" required />
+    </label>
+
+    <label class="cosmos-field password-field">
+      <span>Password</span>
+      <div class="cosmos-password-row">
+        <input id="password" placeholder="••••••••" type="password" autocomplete="current-password" required />
+        <button id="toggle-password" type="button" aria-label="Show password">Show</button>
+      </div>
+    </label>
+
+    <div class="cosmos-options">
+      <label><input id="remember-me" type="checkbox" /> <span>Remember me</span></label>
+      <button class="cosmos-link" id="forgot-password" type="button">Forgot password?</button>
+    </div>
+
+    <button class="cosmos-submit" id="login-btn" type="button">Launch sign in</button>
+
+    <div class="cosmos-divider"><span>Or continue with</span></div>
+    <div class="cosmos-socials">
+      <button type="button" data-provider="Google"><span>G</span> Google</button>
+      <button type="button" data-provider="GitHub"><span>◉</span> GitHub</button>
+    </div>
+
+    <p class="cosmos-signup">Don't have an account? <a href="register.html">Sign up</a></p>
   </section>
-</div>
+</main>
 
 <script src="app.js"></script>
 <script src="neural-bg.js"></script>
@@ -74,12 +86,37 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+const passwordInput = document.getElementById('password');
+document.getElementById('toggle-password').onclick = function () {
+  const showPassword = passwordInput.type === 'password';
+  passwordInput.type = showPassword ? 'text' : 'password';
+  this.textContent = showPassword ? 'Hide' : 'Show';
+  this.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+};
+document.getElementById('forgot-password').onclick = () => {
+  document.getElementById('login-msg').textContent = 'Password recovery will be available soon.';
+};
+document.querySelectorAll('.cosmos-socials button').forEach((button) => {
+  button.onclick = () => {
+    document.getElementById('login-msg').textContent = `${button.dataset.provider} sign-in is not configured yet.`;
+  };
+});
+
+const rememberedEmail = localStorage.getItem('rememberedEmail');
+if (rememberedEmail) {
+  document.getElementById('email').value = rememberedEmail;
+  document.getElementById('remember-me').checked = true;
+}
+
 const loginBtn = document.getElementById('login-btn');
 loginBtn.onclick = async () => {
+
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
   const result = await apiFetch('/auth/login', 'POST', { email, password });
   if (!result.success) { document.getElementById('login-msg').textContent = result.message; return; }
+  if (document.getElementById('remember-me').checked) localStorage.setItem('rememberedEmail', email);
+  else localStorage.removeItem('rememberedEmail');
   setToken(result.data.token); localStorage.setItem('user', JSON.stringify(result.data.user));
   window.location.href='dashboard.html';
 };

@@ -5,44 +5,50 @@
 <title>AI Study Assistant - Register</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="auth-page">
-<nav class="navbar">
-  <div class="logo">Neural Flow</div>
-  <a href="index.html">Login</a>
-</nav>
+<body class="auth-page cosmos-auth">
+<main class="cosmos-shell">
+  <header class="cosmos-brand">
+    <div class="cosmos-orb"><span></span></div>
+    <h1>NextMind</h1>
+    <p>Create your stellar account</p>
+  </header>
 
-<div class="auth-shell">
-  <section class="auth-hero">
-    <p class="auth-kicker">Network Enrollment</p>
-    <h1>Join the neural collective.</h1>
-    <p class="section-intro">Create your node in the network and start synthesizing information with the power of integrated AI.</p>
-    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>🛰️</span> <span>Global Resource Access</span>
-       </div>
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>🔓</span> <span>Unlocked Analysis Tools</span>
-       </div>
-       <div style="display: flex; align-items: center; gap: 1rem; color: var(--primary);">
-         <span>💎</span> <span>Premium Study Environment</span>
-       </div>
+  <section class="cosmos-card">
+    <div class="cosmos-tabs" role="tablist">
+      <a href="index.html" role="tab">Sign in</a>
+      <button class="active" type="button" role="tab" aria-selected="true">Sign up</button>
     </div>
-  </section>
+    <p id="register-msg" class="cosmos-message" role="alert"></p>
 
-  <section class="auth-card">
-    <h2>New Registration</h2>
-    <p class="section-intro">Initialize your neural identity.</p>
-    <p id="register-msg" style="color:var(--primary); font-size: 0.8rem; margin-bottom: 1rem;"></p>
-    <input id="name" class="input-field" placeholder="Full Identity Label" />
-    <input id="email" class="input-field" placeholder="Network ID (Email)" type="email" />
-    <input id="password" class="input-field" placeholder="Security Protocol" type="password" />
-    <button class="btn" id="register-btn" style="width: 100%;">Create Node</button>
+    <label class="cosmos-field">
+      <span>Full name</span>
+      <input id="name" placeholder="Your name" autocomplete="name" />
+    </label>
+    <label class="cosmos-field">
+      <span>Email address</span>
+      <input id="email" placeholder="you@domain.com" type="email" autocomplete="email" />
+    </label>
+    <label class="cosmos-field password-field">
+      <span>Password</span>
+      <div class="cosmos-password-row">
+        <input id="password" placeholder="••••••••" type="password" autocomplete="new-password" />
+        <button id="toggle-password" type="button" aria-label="Show password">Show</button>
+      </div>
+    </label>
+    <button class="cosmos-submit" id="register-btn" type="button">Create account</button>
+    <p class="cosmos-signup">Already have an account? <a href="index.html">Sign in</a></p>
   </section>
-</div>
+</main>
 
 <script src="app.js"></script>
 <script src="neural-bg.js"></script>
 <script>
+const registerPassword = document.getElementById('password');
+document.getElementById('toggle-password').onclick = function () {
+  const showPassword = registerPassword.type === 'password';
+  registerPassword.type = showPassword ? 'text' : 'password';
+  this.textContent = showPassword ? 'Hide' : 'Show';
+};
 const registerBtn = document.getElementById('register-btn');
 registerBtn.onclick = async () => {
   const name = document.getElementById('name').value.trim();
