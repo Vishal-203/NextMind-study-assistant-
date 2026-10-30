@@ -246,7 +246,9 @@ NexMind-study-assistant-/
 | `SECRET_KEY` | Flask secret key | `your-secret-key` |
 | `JWT_SECRET_KEY` | JWT signing key | `your-jwt-key` |
 | `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/ai_study_assistant` |
-| `OPENAI_API_KEY` | OpenAI API key | `sk-...` |
+| `OPENAI_API_KEY` | OpenAI-compatible or Groq API key | `gsk_...` |
+| `OPENAI_BASE_URL` | OpenAI-compatible API base URL | `https://api.groq.com/openai/v1` |
+| `OPENAI_MODEL` | AI model available from the configured provider | `allam-2-7b` |
 
 ## Troubleshooting
 
@@ -302,19 +304,25 @@ The project uses Flask debug mode for development. Test endpoints via:
 
 ### Deploy to Render
 
-1. Create a free database on MongoDB Atlas and allow network access from `0.0.0.0/0` for the initial deployment.
-2. Copy the Atlas connection string, including the database name and credentials.
-3. Push this repository to GitHub.
-4. In Render, choose **New > Blueprint** and select the repository. Render reads [render.yaml](render.yaml).
-5. Set the required `MONGO_URI` value during blueprint setup.
-6. Optionally set `OPENAI_API_KEY` for AI features.
-7. Open the generated service URL and verify `https://YOUR-SERVICE.onrender.com/api/health`.
+The application is currently deployed at **https://nextmind-study-assistant.onrender.com**.
 
-Alternatively, run the production server locally after setting production environment variables:
+To deploy or update it yourself:
+
+1. Create a MongoDB Atlas database and copy its connection string.
+2. Add the repository to Render as a Blueprint using [render.yaml](render.yaml).
+3. Configure these environment variables in Render:
+   - `MONGO_URI`
+   - `OPENAI_API_KEY`
+   - `OPENAI_BASE_URL=https://api.groq.com/openai/v1`
+   - `OPENAI_MODEL=allam-2-7b`
+4. Render generates `SECRET_KEY` and `JWT_SECRET_KEY` automatically from the Blueprint.
+5. Verify deployment status at `https://nextmind-study-assistant.onrender.com/api/health`.
+
+For a local production-style server after setting production environment variables:
 
 ```bash
 python -m pip install -r backend/requirements.txt
-gunicorn --bind 0.0.0.0:5000 --workers 2 backend.app:app
+python backend/start.py
 ```
 
 > Important: uploaded files stored on Render's filesystem are ephemeral on the free plan and may be lost when the service restarts or redeploys. Configure persistent disk storage or migrate uploads to object storage before relying on file uploads in production.
