@@ -2,83 +2,119 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Digital Notebook | AI Study Assistant</title>
+<title>Notes Hub | NextMind</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
-    </div>
-    <nav class="nav-links">
-      <a href="dashboard.html"><span>📊</span> Dashboard</a>
-      <a href="notebook.html" class="active"><span>📓</span> Notes</a>
-      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
-      <a href="planner.html"><span>✅</span> Tasks</a>
-      <a href="profile.html"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+<body class="dashboard-page notes-hub-page">
+<div class="dashboard-shell">
+  <aside class="dashboard-sidebar" id="dashboard-sidebar">
+    <a class="dashboard-brand" href="dashboard.html"><span class="dashboard-brand-mark">N</span><span>NextMind</span></a>
+    <nav class="dashboard-nav" aria-label="Main navigation">
+      <a href="dashboard.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+      <a class="active" href="notebook.html"><span class="nav-icon">▱</span><span>Notes</span></a>
+      <a href="planner.html"><span class="nav-icon">✓</span><span>Tasks</span></a>
+      <a href="profile.html"><span class="nav-icon">○</span><span>Profile</span></a>
     </nav>
+    <button class="dashboard-profile" id="logout-sidebar" type="button"><span class="profile-avatar">V</span><span><strong id="sidebar-user">Student</strong><small>Sign out</small></span></button>
   </aside>
 
-  <main class="main-content">
-    <section class="page-hero">
-      <p class="auth-kicker">Digital Notebook</p>
-      <h1>Knowledge Synthesis</h1>
-      <p class="section-intro">Capture ideas, sketch diagrams, and organize your neural network of information.</p>
-    </section>
+  <main class="dashboard-main">
+    <header class="dashboard-topbar">
+      <button class="dashboard-mobile-menu" id="notes-mobile-menu" type="button" aria-label="Open menu">☰</button>
+      <label class="dashboard-search"><span>⌕</span><input id="filter-input" type="search" placeholder="Search"></label>
+      <div class="dashboard-actions"><button class="dashboard-icon-button" type="button" aria-label="Notifications">♧</button><a class="dashboard-icon-button" href="profile.html">⚙</a><a class="dashboard-icon-button" href="profile.html">○</a></div>
+    </header>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>New Node</h3>
-        <p class="section-intro">Initialize a new knowledge structure.</p>
-        <input id="note-subject" class="input-field" placeholder="Subject" />
-        <input id="note-topic" class="input-field" placeholder="Topic" />
-        <textarea id="note-content" class="input-field" rows="4" placeholder="Input raw information..."></textarea>
-        <input id="note-tags" class="input-field" placeholder="Tags (comma-separated)" />
-        <button class="btn" id="save-note">Save Node</button>
+    <section class="notes-hub-content">
+      <div class="notes-hub-heading">
+        <h1>Notes Hub</h1>
+        <p>Create, organise, and review your study material with AI.</p>
       </div>
 
-      <div class="card">
-        <h3>Visual Mapping</h3>
-        <p class="section-intro">Sketch complex relationships and formulas.</p>
-        <canvas id="canvas" width="760" height="320" style="border:1px solid rgba(0, 229, 255, 0.2); width:100%; cursor:crosshair; background:rgba(0,0,0,0.3); border-radius:12px;"></canvas>
-        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-          <button class="btn btn-muted" id="clear-canvas">Clear</button>
-          <button class="btn" id="save-drawing">Save Sketch</button>
+      <div class="notes-action-grid">
+        <button class="notes-action-card" id="create-note-card" type="button">
+          <span class="notes-action-icon">＋</span><strong>Create New Note</strong><small>Capture ideas, write study notes.</small>
+        </button>
+        <button class="notes-action-card" id="sketch-card" type="button">
+          <span class="notes-action-icon">✎</span><strong>Sketch &amp; Draw</strong><small>Draw diagrams, mind maps, formulas.</small>
+        </button>
+        <button class="notes-action-card" id="ask-notes-card" type="button">
+          <span class="notes-action-icon">✦</span><strong>Ask AI About Notes</strong><small>Chat with NextMind about your stored notes.</small>
+        </button>
+        <button class="notes-action-card" id="summarise-card" type="button">
+          <span class="notes-action-icon">▤</span><strong>Summarise Notes</strong><small>Condense study materials into summaries.</small>
+        </button>
+        <button class="notes-action-card" id="quiz-card" type="button">
+          <span class="notes-action-icon">◉</span><strong>Generate Quiz</strong><small>Create mock tests and practice questions.</small>
+        </button>
+        <button class="notes-action-card" id="flashcard-card" type="button">
+          <span class="notes-action-icon">▱</span><strong>Create Flashcards</strong><small>Build quick revision flashcards automatically.</small>
+        </button>
+        <button class="notes-action-card upload-action-card" id="upload-card" type="button">
+          <span class="notes-action-icon">↑</span><strong>Upload Study Material</strong><small>Add PDFs, slides, and documents.</small>
+        </button>
+      </div>
+
+      <section class="notes-panel notes-ai-panel" id="notes-ai-panel" hidden>
+        <div class="notes-panel-title">
+          <div>
+            <h2 id="notes-ai-title">Ask NextMind about your notes</h2>
+            <p id="notes-ai-description">Choose a note, then add a question or study request.</p>
+          </div>
+          <button class="notes-ai-close" id="notes-ai-close" type="button" aria-label="Close AI tools">×</button>
         </div>
-        <p id="drawing-msg" style="color:var(--primary); font-size:0.8rem; margin-top: 0.5rem;"></p>
-      </div>
-    </div>
+        <div class="notes-ai-controls">
+          <label>Note<select id="notes-ai-note"><option value="">All my notes</option></select></label>
+          <label id="notes-ai-topic-wrap">Topic or question<textarea id="notes-ai-input" rows="4" placeholder="Ask a question about your notes..."></textarea></label>
+        </div>
+        <button class="notes-primary-button" id="notes-ai-run" type="button">Run AI</button>
+        <div class="notes-ai-result" id="notes-ai-result" role="status" aria-live="polite"></div>
+      </section>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>My Knowledge <span id="note-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
-        <p class="section-intro">Access your stored information nodes.</p>
-        <input id="filter-input" class="input-field" placeholder="Search network..." />
-        <ul id="note-list" style="max-height:400px; overflow-y:auto; list-style: none;"></ul>
-        <div id="note-pagination" style="display:flex; gap:0.5rem; align-items:center; margin-top:0.75rem;"></div>
+      <div class="notes-workspace" id="new-note">
+        <section class="notes-panel note-editor-panel">
+          <div class="notes-panel-title"><h2>New Note</h2><span id="note-editor-status"></span></div>
+          <label>Subject<input id="note-subject" placeholder="Subject"></label>
+          <label>Topic<input id="note-topic" placeholder="Topic"></label>
+          <label>Note<textarea id="note-content" rows="7" placeholder="Write or paste study notes..."></textarea></label>
+          <label>Tags<input id="note-tags" placeholder="Comma-separated tags"></label>
+          <button class="notes-primary-button" id="save-note" type="button">Save Note</button>
+        </section>
+
+        <section class="notes-panel sketch-panel" id="sketch-panel">
+          <div class="notes-panel-title"><h2>Sketch &amp; Draw</h2><span id="drawing-msg"></span></div>
+          <canvas id="canvas" width="760" height="320"></canvas>
+          <div class="notes-panel-actions">
+            <button class="notes-secondary-button" id="clear-canvas" type="button">Clear</button>
+            <button class="notes-primary-button" id="save-drawing" type="button">Save Sketch</button>
+          </div>
+        </section>
       </div>
 
-      <div class="card">
-        <h3>Resource Files <span id="file-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
-        <p class="section-intro">External data sources for AI analysis.</p>
-        <input id="file-input" type="file" class="input-field" accept=".pdf,.txt,.jpg,.jpeg,.png,.docx" />
-        <p class="section-intro">PDF, TXT, JPG, PNG, or DOCX · Maximum 20 MB</p>
-        <button class="btn" id="upload-file" style="width:100%;">Upload Resource</button>
-        <p id="file-msg" style="display:none; font-size:0.8rem; margin-top:0.5rem;"></p>
-        <ul id="file-list" style="max-height:400px; overflow-y:auto; list-style: none; margin-top: 1rem;"></ul>
+      <div class="notes-library-grid">
+        <section class="notes-panel notes-library">
+          <div class="notes-panel-title"><h2>My Notes <span id="note-count">(0)</span></h2><a href="#new-note">Create note</a></div>
+          <ul id="note-list"></ul>
+          <div id="note-pagination"></div>
+        </section>
+        <section class="notes-panel resources-panel">
+          <div class="notes-panel-title"><h2>Resources <span id="file-count">(0)</span></h2></div>
+          <input id="file-input" type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.docx">
+          <p>PDF, TXT, JPG, PNG, or DOCX · Maximum 20 MB</p>
+          <button class="notes-secondary-button" id="upload-file" type="button">Upload Resource</button>
+          <p id="file-msg" role="status"></p>
+          <ul id="file-list"></ul>
+        </section>
       </div>
-    </div>
 
-    <div class="card">
-      <h3>Shared Nodes <span id="shared-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
-      <p class="section-intro">Information shared by other network participants.</p>
-      <ul id="shared-note-list" style="max-height:300px; overflow-y:auto; list-style: none;"></ul>
-    </div>
+      <section class="notes-panel shared-panel">
+        <div class="notes-panel-title"><h2>Shared Notes <span id="shared-count">(0)</span></h2></div>
+        <ul id="shared-note-list"></ul>
+      </section>
+    </section>
   </main>
 </div>
+<div class="dashboard-sidebar-overlay" id="sidebar-overlay"></div>
 
 <div id="share-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
   <div class="card" style="max-width:500px; width:90%; margin:0;">
@@ -102,12 +138,131 @@
 requireAuth();
 initDarkMode();
 
+const notesUser = JSON.parse(localStorage.getItem('user') || '{}');
+if (notesUser.name) {
+  document.getElementById('sidebar-user').textContent = notesUser.name;
+}
 document.getElementById('logout-sidebar').onclick = (e) => {
   e.preventDefault();
   clearToken();
   localStorage.removeItem('user');
   window.location = 'index.html';
 };
+const notesSidebar = document.getElementById('dashboard-sidebar');
+const notesOverlay = document.getElementById('sidebar-overlay');
+document.getElementById('notes-mobile-menu').onclick = () => {
+  notesSidebar.classList.add('open');
+  notesOverlay.classList.add('active');
+};
+notesOverlay.onclick = () => {
+  notesSidebar.classList.remove('open');
+  notesOverlay.classList.remove('active');
+};
+
+document.getElementById('create-note-card').onclick = () => {
+  document.getElementById('new-note').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('note-subject').focus();
+};
+document.getElementById('sketch-card').onclick = () => document.getElementById('sketch-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+document.getElementById('upload-card').onclick = () => document.getElementById('file-input').click();
+document.getElementById('ask-notes-card').onclick = () => {
+  openNotesAI('chat', 'Ask NextMind about your notes', 'Choose a note, then ask a question or request study help.', 'Ask a question about your notes...');
+};
+document.getElementById('summarise-card').onclick = () => {
+  openNotesAI('summary', 'Summarise notes', 'Select one note or use all notes to create a revision summary.', 'Optional summary focus...');
+};
+document.getElementById('quiz-card').onclick = () => {
+  openNotesAI('quiz', 'Generate quiz', 'Select a note and enter a topic to create practice questions.', 'Enter a topic...');
+};
+document.getElementById('flashcard-card').onclick = () => {
+  openNotesAI('flashcards', 'Create flashcards', 'Select a note and enter a topic to generate revision cards.', 'Enter a topic...');
+};
+
+const dashboardAIPrompt = new URLSearchParams(window.location.search).get('ai_prompt');
+if (dashboardAIPrompt) {
+  openNotesAI('chat', 'Ask NextMind about your notes', 'Choose a note, then ask a question or request study help.', 'Ask a question about your notes...')
+    .then(() => {
+      document.getElementById('notes-ai-input').value = dashboardAIPrompt;
+    });
+} else if (window.location.hash === '#ask-notes-card') {
+  openNotesAI('chat', 'Ask NextMind about your notes', 'Choose a note, then ask a question or request study help.', 'Ask a question about your notes...');
+}
+
+let notesAIType = 'chat';
+
+async function openNotesAI(type, title, description, placeholder) {
+  notesAIType = type;
+  const panel = document.getElementById('notes-ai-panel');
+  document.getElementById('notes-ai-title').textContent = title;
+  document.getElementById('notes-ai-description').textContent = description;
+  const input = document.getElementById('notes-ai-input');
+  input.placeholder = placeholder;
+  input.value = '';
+  document.getElementById('notes-ai-result').textContent = '';
+  document.getElementById('notes-ai-run').textContent = type === 'chat' ? 'Ask NextMind' : type === 'summary' ? 'Summarise notes' : type === 'quiz' ? 'Generate quiz' : 'Create flashcards';
+  await loadNotesAIOptions();
+  panel.hidden = false;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  input.focus();
+}
+
+async function loadNotesAIOptions() {
+  const select = document.getElementById('notes-ai-note');
+  const response = await apiFetch('/notes?limit=50');
+  const notes = Array.isArray(response?.data?.items) ? response.data.items : [];
+  select.innerHTML = '<option value="">All my notes</option>' + notes.map(note =>
+    `<option value="${note.id}">${String(note.subject || 'Untitled').replace(/[&<>"']/g, '')} - ${String(note.topic || '').replace(/[&<>"']/g, '')}</option>`
+  ).join('');
+}
+
+document.getElementById('notes-ai-close').onclick = () => {
+  document.getElementById('notes-ai-panel').hidden = true;
+};
+
+document.getElementById('notes-ai-run').onclick = async () => {
+  const button = document.getElementById('notes-ai-run');
+  const result = document.getElementById('notes-ai-result');
+  const noteId = document.getElementById('notes-ai-note').value;
+  const input = document.getElementById('notes-ai-input').value.trim();
+  result.className = 'notes-ai-result';
+  button.disabled = true;
+  button.textContent = 'Working...';
+
+  let endpoint = '/ai/chat';
+  let payload = { message: input || 'Help me study my notes.' };
+  if (notesAIType === 'summary') {
+    endpoint = '/ai/summarize';
+    payload = input ? { text: input } : { note_id: noteId || undefined };
+  } else if (notesAIType === 'quiz' || notesAIType === 'flashcards') {
+    endpoint = '/ai/quiz';
+    payload = { topic: input || document.getElementById('notes-ai-note').selectedOptions[0].textContent };
+    if (noteId) payload.note_id = noteId;
+  }
+  if (noteId && notesAIType !== 'summary') payload.note_id = noteId;
+
+  const response = await apiFetch(endpoint, 'POST', payload);
+  button.disabled = false;
+  button.textContent = notesAIType === 'chat' ? 'Ask NextMind' : notesAIType === 'summary' ? 'Summarise notes' : notesAIType === 'quiz' ? 'Generate quiz' : 'Create flashcards';
+
+  if (!response.success) {
+    result.classList.add('error');
+    result.textContent = response.message || 'The AI request could not be completed.';
+    return;
+  }
+  const text = response.data.answer || response.data.summary || response.data.quiz || response.data.text || JSON.stringify(response.data);
+  if (notesAIType === 'flashcards') {
+    result.classList.add('flashcards');
+    result.innerHTML = formatFlashcards(text);
+  } else {
+    result.textContent = text;
+  }
+};
+
+function formatFlashcards(text) {
+  const blocks = String(text).split(/\n{2,}/).filter(Boolean);
+  if (blocks.length < 2) return `<pre>${String(text).replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]))}</pre>`;
+  return blocks.map(block => `<article><span>Revision card</span><p>${block.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]))}</p></article>`).join('');
+}
 
 const ctx = document.getElementById('canvas').getContext('2d');
 let painting = false;
@@ -119,13 +274,15 @@ function stop(){ painting = false; ctx.beginPath(); }
 function draw(e){
   if(!painting) return;
   const rect = e.target.getBoundingClientRect();
+  const scaleX = e.target.width / rect.width;
+  const scaleY = e.target.height / rect.height;
   ctx.lineWidth = 2;
   ctx.lineCap = 'round';
   ctx.strokeStyle = '#00E5FF';
-  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
 }
 
 document.getElementById('canvas').addEventListener('mousedown', start);

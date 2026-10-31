@@ -1,189 +1,357 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Dashboard | AI Study Assistant</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <title>Dashboard | NextMind</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
-    </div>
-    <nav class="nav-links">
-      <a href="dashboard.html" class="active"><span>📊</span> Dashboard</a>
-      <a href="notebook.html"><span>📓</span> Notes</a>
-      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
-      <a href="planner.html"><span>✅</span> Tasks</a>
-      <a href="profile.html"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
-    </nav>
-  </aside>
+<body class="dashboard-page">
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+      <a class="dashboard-brand" href="dashboard.html" aria-label="NextMind dashboard">
+        <span class="dashboard-brand-mark">N</span>
+        <span>NextMind</span>
+      </a>
+      <nav class="dashboard-nav" aria-label="Main navigation">
+        <a class="active" href="dashboard.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+        <a href="notebook.html"><span class="nav-icon">▱</span><span>Notes</span></a>
+        <a href="planner.html"><span class="nav-icon">✓</span><span>Tasks</span></a>
+        <a href="profile.html"><span class="nav-icon">○</span><span>Profile</span></a>
+      </nav>
+      <button class="dashboard-profile" id="logout-sidebar" type="button">
+        <span class="profile-avatar" id="sidebar-avatar">V</span>
+        <span>
+          <strong id="sidebar-user">Student</strong>
+          <small>Sign out</small>
+        </span>
+      </button>
+    </aside>
 
-  <main class="main-content">
-    <section class="page-hero">
-      <p class="auth-kicker">Study Dashboard</p>
-      <h1>Welcome back.</h1>
-      <p class="section-intro">Your neural network of knowledge is ready. Check your momentum and resume your progress.</p>
-    </section>
-
-    <div class="highlight-card card">
-      <p class="auth-kicker">Status: Optimal</p>
-      <h2 id="checkpoint-heading">Ready for your next session.</h2>
-      <p class="section-intro" id="checkpoint-copy">Pick up where you left off with a focused study path.</p>
-      <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <span class="badge badge-success" id="checkpoint-task">Focus Session</span>
-        <span class="badge badge-warning" id="checkpoint-count">Priority Tasks</span>
-        <span class="badge badge-success" id="checkpoint-note">Quick Summary</span>
-      </div>
-      <div class="grid-2">
-        <div class="card" style="margin-bottom: 0;">
-          <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Next deadline</p>
-          <p id="checkpoint-deadline" style="font-weight: 700;">No upcoming deadline</p>
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <button class="dashboard-mobile-menu" id="mobile-menu" type="button" aria-label="Open menu">☰</button>
+        <label class="dashboard-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="dashboard-search" type="search" placeholder="Search notes and tasks">
+        </label>
+        <div class="dashboard-actions">
+          <button class="dashboard-icon-button" id="notification-button" type="button" aria-label="Notifications">♧</button>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Profile">⚙</a>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Account">○</a>
         </div>
-        <div class="card" style="margin-bottom: 0;">
-          <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Latest note</p>
-          <p id="checkpoint-note-preview" style="font-weight: 700;">No recent notes</p>
+      </header>
+
+      <section class="dashboard-content">
+        <div class="dashboard-welcome">
+          <h1>Welcome back, <span id="welcome-name">Student</span></h1>
+          <p>What are we studying today?</p>
         </div>
-      </div>
-      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-        <button class="btn" id="checkpoint-action">Open Planner</button>
-        <button class="btn btn-secondary" id="checkpoint-note-action">Open Notebook</button>
-      </div>
-    </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3>System Stats</h3>
-        <p class="section-intro">Real-time study metrics.</p>
-        <div id="quick-stats">
-          <p>Analyzing system data...</p>
+        <div class="dashboard-grid dashboard-grid-top">
+          <section class="dashboard-panel ai-dashboard-panel">
+            <div class="dashboard-panel-header">
+              <h2>AI Chat Assistant</h2>
+              <button class="panel-menu" data-menu="ai-menu" type="button" aria-label="AI assistant options">•••</button>
+              <div class="panel-menu-popover" id="ai-menu">
+                <a href="notebook.html#ask-notes-card">Open AI assistant</a>
+                <a href="notebook.html">Choose study material</a>
+              </div>
+            </div>
+            <div class="dashboard-ai-prompts">
+              <button type="button" data-prompt="Summarize today's study material">Summarize today's reading</button>
+              <button type="button" data-prompt="Create a quiz for this chapter">Create quiz</button>
+              <button type="button" data-prompt="Explain the difficult concepts in this subject">Explain concepts</button>
+            </div>
+            <div class="dashboard-ai-link">
+              <a href="notebook.html#ask-notes-card"><span aria-hidden="true">✦</span><span>Ask NextMind anything...</span><b>↑</b></a>
+            </div>
+          </section>
+
+          <section class="dashboard-panel progress-panel">
+            <div class="dashboard-panel-header">
+              <h2>Study Progress Stats</h2>
+              <button class="panel-menu" data-menu="progress-menu" type="button" aria-label="Progress options">•••</button>
+              <div class="panel-menu-popover" id="progress-menu">
+                <a href="planner.html">View study tasks</a>
+                <button type="button" id="refresh-progress">Refresh stats</button>
+              </div>
+            </div>
+            <div class="progress-layout">
+              <div class="progress-ring-wrap">
+                <div class="progress-ring" id="progress-ring"><span id="progress-percent">0%</span></div>
+                <span>study goal</span>
+              </div>
+              <div class="progress-stats" id="progress-stats">
+                <div><strong id="notes-stat">0</strong><span>Notes</span></div>
+                <div><strong id="pending-stat">0</strong><span>Pending tasks</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-panel upload-panel">
+            <div class="dashboard-panel-header">
+              <h2>Document Upload</h2>
+              <button class="panel-menu" data-menu="upload-menu" type="button" aria-label="Upload options">•••</button>
+              <div class="panel-menu-popover" id="upload-menu">
+                <button type="button" id="open-upload-menu">Choose a file</button>
+                <a href="notebook.html">Manage resources</a>
+              </div>
+            </div>
+            <label class="dashboard-dropzone" id="dashboard-dropzone" for="dashboard-file-input">
+              <span class="upload-icon">↑</span>
+              <strong>Drop PDFs, notes,<br>or slides here</strong>
+              <input id="dashboard-file-input" type="file" accept=".pdf,.txt,.jpg,.jpeg,.png,.docx">
+            </label>
+            <p class="dashboard-upload-status" id="dashboard-upload-status" role="status"></p>
+          </section>
         </div>
-      </div>
 
-      <div class="card">
-        <h3>Active Tasks</h3>
-        <p class="section-intro">Your top priorities for this cycle.</p>
-        <div class="action-grid" style="display: grid; grid-template-columns: 1fr; gap: 0.5rem;">
-           <!-- Tasks will be injected here if I had a list, but for now I'll just keep the buttons -->
-           <button class="btn" onclick="window.location='planner.html'">Manage All Tasks</button>
+        <div class="dashboard-grid dashboard-grid-bottom">
+          <section class="dashboard-panel notebook-panel">
+            <div class="dashboard-panel-header">
+              <h2>Recent Study Notebook</h2>
+              <div>
+                <a class="panel-link" href="notebook.html">View all</a>
+                <button class="panel-menu" data-menu="notes-menu" type="button" aria-label="Notebook options">•••</button>
+              </div>
+              <div class="panel-menu-popover" id="notes-menu">
+                <a href="notebook.html">Open notebook</a>
+                <a href="notebook.html#new-note">Create a note</a>
+              </div>
+            </div>
+            <div class="recent-note-list" id="recent-note-list">
+              <p class="dashboard-empty">Loading notes...</p>
+            </div>
+          </section>
+
+          <section class="dashboard-panel revision-panel">
+            <div class="dashboard-panel-header">
+              <h2>Scheduled Revision</h2>
+              <div>
+                <a class="panel-link" href="planner.html">View all</a>
+                <button class="panel-menu" data-menu="tasks-menu" type="button" aria-label="Task options">•••</button>
+              </div>
+              <div class="panel-menu-popover" id="tasks-menu">
+                <a href="planner.html">Manage tasks</a>
+                <button type="button" id="show-completed-toggle">Show completed</button>
+              </div>
+            </div>
+            <div class="revision-list" id="revision-list">
+              <p class="dashboard-empty">Loading tasks...</p>
+            </div>
+          </section>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
+  </div>
+  <div class="dashboard-sidebar-overlay" id="sidebar-overlay"></div>
 
-    <div class="card">
-      <h3>Knowledge Nodes</h3>
-      <p class="section-intro">Recently modified information structures.</p>
-      <div id="recent-notes-container">
-        <p>Fetching notes from network...</p>
-      </div>
-    </div>
-  </main>
-</div>
+  <script src="app.js"></script>
+  <script>
+    requireAuth();
 
-<script src="app.js"></script>
-<script src="neural-bg.js"></script>
-<script>
-requireAuth();
-initDarkMode();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const firstName = (user.name || 'Student').trim().split(/\s+/)[0];
+    document.getElementById('welcome-name').textContent = firstName;
+    document.getElementById('sidebar-user').textContent = user.name || 'Student';
+    document.getElementById('sidebar-avatar').textContent = firstName.charAt(0).toUpperCase();
 
-document.getElementById('logout-sidebar').onclick = (e) => {
-  e.preventDefault();
-  clearToken();
-  localStorage.removeItem('user');
-  window.location = 'index.html';
-};
+    const sidebar = document.getElementById('dashboard-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+    document.getElementById('mobile-menu').onclick = () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    };
+    overlay.onclick = closeMobileSidebar;
 
-async function loadStats() {
-  const res = await apiFetch('/user/stats');
-  if(res.success) {
-    const s = res.data;
-    document.getElementById('quick-stats').innerHTML = `
-      <div class="grid-2">
-        <div style="padding: 1rem; border-left: 2px solid var(--primary);">
-          <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">NOTES</span>
-          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.notes}</span>
-        </div>
-        <div style="padding: 1rem; border-left: 2px solid var(--primary);">
-          <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">PENDING</span>
-          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.pending_tasks}</span>
-        </div>
-      </div>
-    `;
-  }
-}
+    document.getElementById('logout-sidebar').onclick = () => {
+      clearToken();
+      localStorage.removeItem('user');
+      location.href = 'index.html';
+    };
 
-async function loadRecentNotes() {
-  const res = await apiFetch('/notes');
-  const container = document.getElementById('recent-notes-container');
-  const items = Array.isArray(res?.data?.items) ? res.data.items : Array.isArray(res?.data) ? res.data : [];
-
-  if(res.success && items.length > 0) {
-    let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
-    items.slice(0, 3).forEach(n => {
-      const date = new Date(n.updated_at).toLocaleDateString();
-      html += `
-        <div class="card" style="margin-bottom: 0; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary);">
-          <div>
-            <div style="font-weight: 700; color: var(--text-main);">${n.subject}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${n.topic} • ${date}</div>
-          </div>
-          <a href="notebook.html" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.7rem;">Access</a>
-        </div>
-      `;
+    document.querySelectorAll('.panel-menu').forEach(button => {
+      button.onclick = event => {
+        event.stopPropagation();
+        const menu = document.getElementById(button.dataset.menu);
+        document.querySelectorAll('.panel-menu-popover.open').forEach(openMenu => {
+          if (openMenu !== menu) openMenu.classList.remove('open');
+        });
+        menu.classList.toggle('open');
+      };
     });
-    html += '</div>';
-    container.innerHTML = html;
-  } else if(res.success) {
-    container.innerHTML = '<p class="section-intro">No knowledge nodes found. <a href="notebook.html" style="color: var(--primary);">Initialize your first note</a>.</p>';
-  }
-}
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.panel-menu-popover.open').forEach(menu => menu.classList.remove('open'));
+    });
 
-async function loadCheckpoint() {
-  const taskRes = await apiFetch('/tasks?limit=1');
-  const noteRes = await apiFetch('/notes?limit=1');
-  const statsRes = await apiFetch('/user/stats');
+    document.getElementById('notification-button').onclick = () => {
+      document.getElementById('notification-button').title = 'No new notifications';
+      loadRevisionTasks(false);
+    };
 
-  const checkpointTask = document.getElementById('checkpoint-task');
-  const checkpointCount = document.getElementById('checkpoint-count');
-  const checkpointNote = document.getElementById('checkpoint-note');
-  const checkpointHeading = document.getElementById('checkpoint-heading');
-  const checkpointCopy = document.getElementById('checkpoint-copy');
-  const checkpointAction = document.getElementById('checkpoint-action');
-  const checkpointNoteAction = document.getElementById('checkpoint-note-action');
-  const checkpointDeadline = document.getElementById('checkpoint-deadline');
-  const checkpointNotePreview = document.getElementById('checkpoint-note-preview');
+    document.querySelectorAll('[data-prompt]').forEach(button => {
+      button.onclick = () => {
+        sessionStorage.setItem('nextmindPrompt', button.dataset.prompt);
+        location.href = 'notebook.html?ai_prompt=' + encodeURIComponent(button.dataset.prompt) + '#notes-ai-panel';
+      };
+    });
 
-  const nextTask = taskRes.success && Array.isArray(taskRes.data?.items) && taskRes.data.items[0];
-  const latestNote = noteRes.success && Array.isArray(noteRes.data?.items) && noteRes.data.items[0];
-  const pendingTasks = statsRes.success ? statsRes.data.pending_tasks : null;
+    let allNotes = [];
+    let allTasks = [];
+    let showCompleted = false;
 
-  if (nextTask) {
-    checkpointTask.textContent = nextTask.title;
-    checkpointHeading.textContent = 'Neural match: Next task ready';
-    checkpointCopy.textContent = `Resume your focus cycle with: ${nextTask.title}.`;
-    checkpointDeadline.textContent = nextTask.deadline ? nextTask.deadline : 'Continuous';
-    checkpointAction.textContent = 'Go to Planner';
-  }
+    function itemsFrom(response) {
+      if (Array.isArray(response?.data)) return response.data;
+      return Array.isArray(response?.data?.items) ? response.data.items : [];
+    }
 
-  if (pendingTasks !== null) {
-    checkpointCount.textContent = `${pendingTasks} Active Tasks`;
-  }
+    async function loadDashboard() {
+      const [notesResponse, tasksResponse, statsResponse] = await Promise.all([
+        apiFetch('/notes?limit=6'),
+        apiFetch('/tasks?limit=20'),
+        apiFetch('/user/stats')
+      ]);
+      allNotes = notesResponse.success ? itemsFrom(notesResponse) : [];
+      allTasks = tasksResponse.success ? itemsFrom(tasksResponse) : [];
+      renderNotes(allNotes);
+      renderTasks(allTasks, showCompleted);
 
-  if (latestNote) {
-    checkpointNote.textContent = latestNote.subject;
-    checkpointNotePreview.textContent = latestNote.topic || 'General knowledge';
-  }
+      const stats = statsResponse.success ? statsResponse.data : {};
+      const totalTasks = Number(stats.total_tasks || allTasks.length);
+      const completedTasks = allTasks.filter(task => task.status === 'completed').length;
+      const progress = totalTasks ? Math.min(100, Math.round(completedTasks / totalTasks * 100)) : 0;
+      document.getElementById('progress-percent').textContent = `${progress}%`;
+      document.getElementById('progress-ring').style.setProperty('--progress', `${progress * 3.6}deg`);
+      document.getElementById('notes-stat').textContent = stats.notes ?? allNotes.length;
+      document.getElementById('pending-stat').textContent = stats.pending_tasks ?? allTasks.filter(task => task.status !== 'completed').length;
+    }
 
-  checkpointAction.onclick = () => window.location = 'planner.html';
-  checkpointNoteAction.onclick = () => window.location = 'notebook.html';
-}
+    function renderNotes(notes) {
+      const container = document.getElementById('recent-note-list');
+      if (!notes.length) {
+        container.innerHTML = '<div class="dashboard-empty"><strong>No notes yet</strong><a href="notebook.html#new-note">Create your first note</a></div>';
+        return;
+      }
+      container.innerHTML = notes.slice(0, 5).map(note => `
+        <a class="recent-note-item" href="notebook.html">
+          <span class="note-file-icon">▱</span>
+          <span>
+            <strong>${escapeHtml(note.subject || 'Untitled note')}</strong>
+            <small>${escapeHtml(note.topic || 'General study')}</small>
+          </span>
+          <span class="note-actions" title="Open note">↗</span>
+        </a>
+      `).join('');
+    }
 
-loadStats();
-loadRecentNotes();
-loadCheckpoint();
-</script>
+    function renderTasks(tasks, includeCompleted) {
+      const container = document.getElementById('revision-list');
+      const visibleTasks = tasks.filter(task => includeCompleted || task.status !== 'completed').slice(0, 5);
+      if (!visibleTasks.length) {
+        container.innerHTML = `<div class="dashboard-empty"><strong>${includeCompleted ? 'No tasks yet' : 'Nothing scheduled'}</strong><a href="planner.html">Add a task</a></div>`;
+        return;
+      }
+      container.innerHTML = visibleTasks.map(task => `
+        <div class="revision-item">
+          <input class="revision-checkbox" type="checkbox" data-task-id="${escapeHtml(task.id)}" ${task.status === 'completed' ? 'checked' : ''} aria-label="Mark ${escapeHtml(task.title)} complete">
+          <div>
+            <strong>${escapeHtml(task.title)}</strong>
+            <small>${task.deadline ? formatDeadline(task.deadline) : 'No deadline'}</small>
+          </div>
+          <span class="revision-date">${formatDate(task.deadline)}</span>
+        </div>
+      `).join('');
+      container.querySelectorAll('.revision-checkbox').forEach(checkbox => {
+        checkbox.onchange = async () => {
+          const result = await apiFetch(`/tasks/${checkbox.dataset.taskId}`, 'PUT', { status: checkbox.checked ? 'completed' : 'pending' });
+          if (!result.success) {
+            checkbox.checked = !checkbox.checked;
+            return;
+          }
+          loadDashboard();
+        };
+      });
+    }
+
+    async function loadRevisionTasks(includeCompleted) {
+      const response = await apiFetch('/tasks?limit=20');
+      if (!response.success) return;
+      allTasks = itemsFrom(response);
+      renderTasks(allTasks, includeCompleted);
+    }
+
+    document.getElementById('show-completed-toggle').onclick = () => {
+      showCompleted = !showCompleted;
+      document.getElementById('show-completed-toggle').textContent = showCompleted ? 'Hide completed' : 'Show completed';
+      renderTasks(allTasks, showCompleted);
+    };
+    document.getElementById('refresh-progress').onclick = loadDashboard;
+
+    const searchInput = document.getElementById('dashboard-search');
+    searchInput.oninput = () => {
+      const query = searchInput.value.trim().toLowerCase();
+      renderNotes(allNotes.filter(note => `${note.subject || ''} ${note.topic || ''}`.toLowerCase().includes(query)));
+      renderTasks(allTasks.filter(task => `${task.title || ''}`.toLowerCase().includes(query)), showCompleted);
+    };
+
+    const fileInput = document.getElementById('dashboard-file-input');
+    const dropzone = document.getElementById('dashboard-dropzone');
+    const uploadStatus = document.getElementById('dashboard-upload-status');
+
+    document.getElementById('open-upload-menu').onclick = () => fileInput.click();
+    async function uploadDashboardFile(file) {
+      if (!file) return;
+      const allowed = ['pdf', 'txt', 'jpg', 'jpeg', 'png', 'docx'];
+      const extension = (file.name.split('.').pop() || '').toLowerCase();
+      if (!allowed.includes(extension)) {
+        uploadStatus.textContent = 'Choose a PDF, TXT, JPG, PNG, or DOCX file.';
+        return;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        uploadStatus.textContent = 'The file exceeds the 20 MB limit.';
+        return;
+      }
+      uploadStatus.textContent = 'Uploading...';
+      const formData = new FormData();
+      formData.append('file', file);
+      const result = await apiUpload('/files', formData);
+      uploadStatus.textContent = result.success ? `${file.name} uploaded successfully.` : (result.message || 'Upload failed.');
+      if (result.success) fileInput.value = '';
+    }
+    fileInput.onchange = () => uploadDashboardFile(fileInput.files[0]);
+    ['dragenter', 'dragover'].forEach(name => dropzone.addEventListener(name, event => {
+      event.preventDefault();
+      dropzone.classList.add('dragging');
+    }));
+    ['dragleave', 'drop'].forEach(name => dropzone.addEventListener(name, event => {
+      event.preventDefault();
+      dropzone.classList.remove('dragging');
+    }));
+    dropzone.addEventListener('drop', event => uploadDashboardFile(event.dataTransfer.files[0]));
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      })[character]);
+    }
+    function formatDate(value) {
+      if (!value) return 'Today';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+    function formatDeadline(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return `Due ${date.toLocaleDateTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+    }
+
+    loadDashboard();
+  </script>
 </body>
 </html>
