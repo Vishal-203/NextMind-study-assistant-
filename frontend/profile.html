@@ -1,141 +1,230 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<title>Profile | AI Study Assistant</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile | NextMind</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
-    </div>
-    <nav class="nav-links">
-      <a href="dashboard.html"><span>📊</span> Dashboard</a>
-      <a href="notebook.html"><span>📓</span> Notes</a>
-      <a href="planner.html"><span>✅</span> Tasks</a>
-      <a href="profile.html" class="active"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
-    </nav>
-  </aside>
+<body class="dashboard-page profile-page">
+  <div class="dashboard-shell">
+    <div class="dashboard-overlay" id="sidebar-overlay"></div>
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+      <a class="dashboard-brand" href="dashboard.html"><span class="dashboard-brand-mark">N</span><span>NextMind</span></a>
+      <nav class="dashboard-nav">
+        <a href="dashboard.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+        <a href="notebook.html"><span class="nav-icon">▱</span><span>Notes</span></a>
+        <a href="planner.html"><span class="nav-icon">✓</span><span>Tasks</span></a>
+        <a class="active" href="profile.html"><span class="nav-icon">○</span><span>Profile</span></a>
+      </nav>
+      <button class="dashboard-profile" id="logout-sidebar" type="button">
+        <span class="profile-avatar" id="sidebar-avatar">V</span><span><strong id="sidebar-user">Student</strong><small>Sign out</small></span>
+      </button>
+    </aside>
 
-  <main class="main-content">
-    <section class="page-hero">
-      <p class="auth-kicker">Identity & Access</p>
-      <h1>Profile Control</h1>
-      <p class="section-intro">Manage your neural identity and review system-wide activity metrics.</p>
-    </section>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>User Metadata</h3>
-        <p class="section-intro">Update your primary identification label.</p>
-        <p id="profile-msg" style="color:var(--primary); font-size: 0.9rem; margin-bottom: 1rem;"></p>
-        <div>
-          <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Identity Label</label>
-          <input id="profile-name" class="input-field" placeholder="Enter Label" />
-          <button class="btn" id="update-profile-btn" style="width: 100%;">Sync Identity</button>
+    <main class="dashboard-main profile-main">
+      <header class="dashboard-topbar">
+        <button class="dashboard-mobile-menu" id="mobile-menu" type="button" aria-label="Open menu">☰</button>
+        <label class="dashboard-search"><span>⌕</span><input type="search" placeholder="Search"></label>
+        <div class="dashboard-actions">
+          <button class="dashboard-icon-button" id="theme-button" type="button" aria-label="Theme">⚙</button>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Notifications">♧</a>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Profile">○</a>
         </div>
-        <div style="margin-top: 1.5rem;">
-          <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Network ID (Email)</label>
-          <input id="profile-email" class="input-field" disabled style="opacity: 0.6;" />
+      </header>
+
+      <div class="profile-content">
+        <div class="profile-heading">
+          <h1>My Profile</h1>
+          <p>Manage your account, view your study insights, and configure preferences.</p>
         </div>
-      </div>
 
-      <div class="card">
-        <h3>Network Activity</h3>
-        <p class="section-intro">Metrics for nodes and task operations.</p>
-        <div id="stats-container">
-          <p>Scanning network...</p>
+        <div class="profile-grid profile-grid-top">
+          <section class="profile-panel personal-panel">
+            <h2>Personal Information</h2>
+            <div class="profile-personal-layout">
+              <div class="profile-photo-column">
+                <div class="profile-photo" id="profile-photo">V</div>
+                <label class="profile-upload-label" for="profile-photo-input">Upload new<br>picture</label>
+                <input id="profile-photo-input" type="file" accept="image/*" hidden>
+              </div>
+              <form class="profile-form" id="profile-form">
+                <label>Full Name<input id="profile-name" required></label>
+                <label>Email Address<input id="profile-email" type="email" disabled></label>
+                <label>Education<input id="profile-education"></label>
+                <label>Course<input id="profile-course"></label>
+                <p class="profile-message" id="profile-message" role="status"></p>
+                <button class="profile-primary-button" type="submit">Update Profile</button>
+              </form>
+            </div>
+          </section>
+
+          <section class="profile-panel stats-panel">
+            <h2>Study Statistics</h2>
+            <div class="profile-stat-grid">
+              <article><span>Current Course</span><strong id="stats-course">BCA (3rd Year / Current)</strong></article>
+              <article><span>Active Study Time</span><strong>12.5 hrs this week</strong></article>
+              <article><span>Notes Created</span><strong><b id="stats-notes">0</b> documents</strong></article>
+              <article><span>Revision Completion</span><strong><b id="stats-completion">0%</b></strong></article>
+              <article><span>Completed Tasks</span><strong><b id="stats-completed">0</b> tasks</strong></article>
+            </div>
+          </section>
         </div>
-      </div>
-    </div>
 
-    <div class="card">
-      <h3>Security Protocol</h3>
-      <p class="section-intro">Update your access credentials.</p>
-      <p id="password-msg" style="color:var(--primary); font-size: 0.9rem; margin-bottom: 1rem;"></p>
-      <div class="grid-3">
-        <input id="old-password" class="input-field" type="password" placeholder="Current Protocol">
-        <input id="new-password" class="input-field" type="password" placeholder="New Protocol">
-        <input id="confirm-password" class="input-field" type="password" placeholder="Confirm Protocol">
-      </div>
-      <button class="btn" id="change-password-btn">Execute Protocol Update</button>
-    </div>
-  </main>
-</div>
+        <div class="profile-grid profile-grid-bottom">
+          <section class="profile-panel settings-panel">
+            <div class="profile-panel-title"><h2>System &amp; Theme Settings</h2><button type="button" aria-label="Settings options">•••</button></div>
+            <div class="profile-setting-row"><span>App Theme</span><div><strong>Dark Mode</strong><input id="dark-mode-toggle" type="checkbox"><i></i></div></div>
+            <div class="profile-setting-row"><span>Notification Preferences</span><div><strong>Email</strong><input type="checkbox" id="email-notifications" checked><i></i><strong>Browser</strong><input type="checkbox" id="browser-notifications" checked><i></i></div></div>
+            <div class="profile-setting-row"><span>GitHub</span><div class="github-account"><span>●</span><strong id="github-user">Not connected</strong><button type="button" id="github-button">Connect GitHub</button></div></div>
+            <div class="profile-setting-row"><span>Security</span><button class="profile-outline-button" id="open-password-modal" type="button">Change Password</button></div>
+          </section>
 
-<script src="app.js"></script>
-<script src="neural-bg.js"></script>
-<script>
-requireAuth();
-initDarkMode();
-
-document.getElementById('logout-sidebar').onclick = (e) => {
-  e.preventDefault();
-  clearToken();
-  localStorage.removeItem('user');
-  window.location = 'index.html';
-};
-
-const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-async function loadProfile() {
-  const res = await apiFetch('/user/profile');
-  if(res.success) {
-    document.getElementById('profile-name').value = res.data.name || '';
-    document.getElementById('profile-email').value = res.data.email || '';
-  }
-}
-
-async function loadStats() {
-  const res = await apiFetch('/user/stats');
-  if(res.success) {
-    const s = res.data;
-    document.getElementById('stats-container').innerHTML = `
-      <div class="grid-2">
-        <div class="card" style="margin-bottom: 0; border-left: 3px solid var(--primary);">
-          <span style="display: block; font-size: 0.7rem; color: var(--text-muted);">NODES</span>
-          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.notes}</span>
-        </div>
-        <div class="card" style="margin-bottom: 0; border-left: 3px solid var(--primary);">
-          <span style="display: block; font-size: 0.7rem; color: var(--text-muted);">TASKS</span>
-          <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">${s.total_tasks}</span>
+          <section class="profile-panel achievements-panel">
+            <div class="profile-panel-title"><h2>My Achievements</h2><button type="button" aria-label="Achievement options">•••</button></div>
+            <div class="achievement-row"><span class="achievement-icon trophy">♛</span><div><strong>Top Student</strong><small>BCA Scholar · <b>8.0 CGPA</b></small></div></div>
+            <div class="achievement-row"><span class="achievement-icon medal">★</span><div><strong>First Note Creator</strong></div></div>
+            <div class="achievement-row"><span class="achievement-icon purple">◎</span><div><strong>Quiz Master</strong><small>Created mock exams from notes</small></div></div>
+            <div class="achievement-row"><span class="achievement-icon streak">◆</span><div><strong>Consistency Streak</strong><small><b>7 Days</b></small></div></div>
+          </section>
         </div>
       </div>
-    `;
-  }
-}
+    </main>
+  </div>
 
-document.getElementById('update-profile-btn').onclick = async () => {
-  const name = document.getElementById('profile-name').value.trim();
-  if(!name) return;
-  const res = await apiFetch('/user/profile', 'PUT', {name});
-  if(res.success) {
-    document.getElementById('profile-msg').textContent = 'Identity synced successfully.';
-    localStorage.setItem('user', JSON.stringify({...user, name}));
-  }
-};
+  <div class="profile-modal-backdrop" id="password-modal" hidden>
+    <form class="profile-modal" id="password-form">
+      <div class="profile-modal-title"><h2>Change Password</h2><button id="close-password-modal" type="button" aria-label="Close">×</button></div>
+      <label>Current Password<input id="old-password" type="password" required></label>
+      <label>New Password<input id="new-password" type="password" minlength="6" required></label>
+      <label>Confirm Password<input id="confirm-password" type="password" minlength="6" required></label>
+      <p id="password-message" role="alert"></p>
+      <button class="profile-primary-button" type="submit">Update Password</button>
+    </form>
+  </div>
 
-document.getElementById('change-password-btn').onclick = async () => {
-  const old_pwd = document.getElementById('old-password').value;
-  const new_pwd = document.getElementById('new-password').value;
-  const confirm_pwd = document.getElementById('confirm-password').value;
-  if(!old_pwd || !new_pwd || !confirm_pwd) return;
-  if(new_pwd !== confirm_pwd) { alert('Protocols do not match'); return; }
-  const res = await apiFetch('/user/change-password', 'POST', {old_password:old_pwd, new_password:new_pwd});
-  if(res.success) {
-    document.getElementById('password-msg').textContent = 'Protocol updated.';
-    document.getElementById('old-password').value = '';
-    document.getElementById('new-password').value = '';
-    document.getElementById('confirm-password').value = '';
-  }
-};
+  <script src="app.js"></script>
+  <script>
+  requireAuth();
+  initDarkMode();
 
-loadProfile();
-loadStats();
-</script>
+  const sidebar = document.getElementById('dashboard-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  document.getElementById('mobile-menu').onclick = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
+  overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+  document.getElementById('logout-sidebar').onclick = () => { clearToken(); localStorage.removeItem('user'); location.href = 'index.html'; };
+
+  document.getElementById('theme-button').onclick = () => {
+    document.getElementById('dark-mode-toggle').checked = !document.getElementById('dark-mode-toggle').checked;
+    const dark = document.getElementById('dark-mode-toggle').checked;
+    localStorage.setItem('darkMode', String(dark));
+    applyDarkMode(dark);
+  };
+  document.getElementById('dark-mode-toggle').onchange = event => {
+    localStorage.setItem('darkMode', String(event.target.checked));
+    applyDarkMode(event.target.checked);
+  };
+  document.getElementById('dark-mode-toggle').checked = localStorage.getItem('darkMode') !== 'false';
+
+  function preferencesKey(setting) { return `profile_${setting}`; }
+  ['email-notifications', 'browser-notifications'].forEach(id => {
+    const input = document.getElementById(id);
+    input.checked = localStorage.getItem(preferencesKey(id)) !== 'false';
+    input.onchange = () => localStorage.setItem(preferencesKey(id), String(input.checked));
+  });
+
+  const githubButton = document.getElementById('github-button');
+  if (localStorage.getItem('githubConnected') === 'true') {
+    document.getElementById('github-user').textContent = 'Vishal-203';
+    githubButton.textContent = 'Disconnect';
+  }
+  githubButton.onclick = () => {
+    const connected = localStorage.getItem('githubConnected') !== 'true';
+    localStorage.setItem('githubConnected', String(connected));
+    document.getElementById('github-user').textContent = connected ? 'Vishal-203' : 'Not connected';
+    githubButton.textContent = connected ? 'Disconnect' : 'Connect GitHub';
+  };
+
+  let cachedUser = {};
+  async function loadProfile() {
+    const response = await apiFetch('/user/profile');
+    if (!response.success) return;
+    cachedUser = response.data;
+    document.getElementById('profile-name').value = response.data.name || '';
+    document.getElementById('profile-email').value = response.data.email || '';
+    const details = JSON.parse(localStorage.getItem('profileDetails') || '{}');
+    document.getElementById('profile-education').value = details.education || '';
+    document.getElementById('profile-course').value = details.course || '';
+    document.getElementById('stats-course').textContent = details.course || 'BCA (3rd Year / Current)';
+    const initial = (response.data.name || 'Student').charAt(0).toUpperCase();
+    document.getElementById('sidebar-avatar').textContent = initial;
+    document.getElementById('sidebar-user').textContent = response.data.name || 'Student';
+    document.getElementById('profile-photo').textContent = initial;
+    const savedPhoto = localStorage.getItem('profilePhoto');
+    if (savedPhoto) document.getElementById('profile-photo').innerHTML = `<img src="${savedPhoto}" alt="Profile">`;
+  }
+
+  async function loadStats() {
+    const response = await apiFetch('/user/stats');
+    if (!response.success) return;
+    const stats = response.data;
+    document.getElementById('stats-notes').textContent = stats.notes || 0;
+    document.getElementById('stats-completed').textContent = stats.completed_tasks || 0;
+    const completion = stats.total_tasks ? Math.round(stats.completed_tasks / stats.total_tasks * 100) : 0;
+    document.getElementById('stats-completion').textContent = `${completion}%`;
+  }
+
+  document.getElementById('profile-form').onsubmit = async event => {
+    event.preventDefault();
+    const name = document.getElementById('profile-name').value.trim();
+    const education = document.getElementById('profile-education').value.trim();
+    const course = document.getElementById('profile-course').value.trim();
+    const message = document.getElementById('profile-message');
+    const response = await apiFetch('/user/profile', 'PUT', { name });
+    if (!response.success) { message.textContent = response.message || 'Unable to update profile.'; return; }
+    localStorage.setItem('profileDetails', JSON.stringify({ education, course }));
+    localStorage.setItem('user', JSON.stringify({ ...cachedUser, name }));
+    document.getElementById('stats-course').textContent = course || 'BCA (3rd Year / Current)';
+    document.getElementById('sidebar-user').textContent = name;
+    document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('profile-photo').textContent = name.charAt(0).toUpperCase();
+    message.textContent = 'Profile updated successfully.';
+  };
+
+  document.getElementById('profile-photo-input').onchange = event => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+      document.getElementById('profile-message').textContent = 'Choose an image smaller than 2 MB.';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem('profilePhoto', reader.result);
+      document.getElementById('profile-photo').innerHTML = `<img src="${reader.result}" alt="Profile">`;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const passwordModal = document.getElementById('password-modal');
+  document.getElementById('open-password-modal').onclick = () => { passwordModal.hidden = false; document.getElementById('old-password').focus(); };
+  document.getElementById('close-password-modal').onclick = () => { passwordModal.hidden = true; };
+  passwordModal.onclick = event => { if (event.target === passwordModal) passwordModal.hidden = true; };
+  document.getElementById('password-form').onsubmit = async event => {
+    event.preventDefault();
+    const oldPassword = document.getElementById('old-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const message = document.getElementById('password-message');
+    if (newPassword !== confirmPassword) { message.textContent = 'Passwords do not match.'; return; }
+    const response = await apiFetch('/user/change-password', 'POST', { old_password: oldPassword, new_password: newPassword });
+    if (!response.success) { message.textContent = response.message || 'Unable to change password.'; return; }
+    event.currentTarget.reset();
+    message.textContent = 'Password updated successfully.';
+  };
+
+  loadProfile();
+  loadStats();
+  </script>
 </body>
 </html>

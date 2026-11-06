@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AI Study Assistant - Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NextMind - Create Account</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page cosmos-auth">
@@ -13,29 +14,35 @@
     <p>Create your stellar account</p>
   </header>
 
-  <section class="cosmos-card">
+  <section class="cosmos-card" aria-labelledby="register-title">
     <div class="cosmos-tabs" role="tablist">
       <a href="index.html" role="tab">Sign in</a>
       <button class="active" type="button" role="tab" aria-selected="true">Sign up</button>
     </div>
     <p id="register-msg" class="cosmos-message" role="alert"></p>
+    <h2 id="register-title" class="sr-only">Create your NextMind account</h2>
 
     <label class="cosmos-field">
       <span>Full name</span>
-      <input id="name" placeholder="Your name" autocomplete="name" />
+      <input id="name" placeholder="Your name" autocomplete="name" required />
     </label>
     <label class="cosmos-field">
       <span>Email address</span>
-      <input id="email" placeholder="you@domain.com" type="email" autocomplete="email" />
+      <input id="email" placeholder="you@domain.com" type="email" autocomplete="email" required />
     </label>
     <label class="cosmos-field password-field">
       <span>Password</span>
       <div class="cosmos-password-row">
-        <input id="password" placeholder="••••••••" type="password" autocomplete="new-password" />
+        <input id="password" placeholder="••••••••" type="password" autocomplete="new-password" minlength="6" required />
         <button id="toggle-password" type="button" aria-label="Show password">Show</button>
       </div>
     </label>
     <button class="cosmos-submit" id="register-btn" type="button">Create account</button>
+    <div class="cosmos-divider"><span>Or continue with</span></div>
+    <div class="cosmos-socials">
+      <button type="button" data-provider="Google"><span>G</span> Google</button>
+      <button type="button" data-provider="GitHub"><span>◉</span> GitHub</button>
+    </div>
     <p class="cosmos-signup">Already have an account? <a href="index.html">Sign in</a></p>
   </section>
 </main>
@@ -48,13 +55,31 @@ document.getElementById('toggle-password').onclick = function () {
   const showPassword = registerPassword.type === 'password';
   registerPassword.type = showPassword ? 'text' : 'password';
   this.textContent = showPassword ? 'Hide' : 'Show';
+  this.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
 };
+const oauthError = new URLSearchParams(window.location.search).get('oauth_error');
+if (oauthError) {
+  document.getElementById('register-msg').textContent = oauthError;
+}
+document.querySelectorAll('.cosmos-socials button').forEach((button) => {
+  button.onclick = () => {
+    window.location.href = `/api/auth/oauth/${button.dataset.provider.toLowerCase()}/start`;
+  };
+});
 const registerBtn = document.getElementById('register-btn');
 registerBtn.onclick = async () => {
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
+  if (!name || !email || !password) {
+    document.getElementById('register-msg').textContent = 'Please complete all fields.';
+    return;
+  }
+  registerBtn.disabled = true;
+  registerBtn.textContent = 'Creating account...';
   const result = await apiFetch('/auth/register', 'POST', {name, email, password});
+  registerBtn.disabled = false;
+  registerBtn.textContent = 'Create account';
   if(!result.success){ document.getElementById('register-msg').textContent = result.message; return; }
   window.location.href = 'index.html';
 };

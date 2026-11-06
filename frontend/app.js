@@ -3,6 +3,14 @@ const getToken = () => localStorage.getItem('token');
 const setToken = (v) => localStorage.setItem('token', v);
 const clearToken = () => localStorage.removeItem('token');
 
+const oauthHash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+if (oauthHash.has('oauth_token')) {
+  setToken(oauthHash.get('oauth_token'));
+  const oauthUser = oauthHash.get('oauth_user');
+  if (oauthUser) localStorage.setItem('user', oauthUser);
+  history.replaceState(null, '', window.location.pathname);
+}
+
 async function apiFetch(endpoint, method='GET', body=null){
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   const token = getToken(); if (token) opts.headers.Authorization = 'Bearer ' + token;
@@ -124,4 +132,3 @@ function initSidebar() {
     }
   });
 }
-

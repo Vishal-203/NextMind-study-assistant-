@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Study Assistant - Login</title>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -98,7 +99,7 @@ document.getElementById('forgot-password').onclick = () => {
 };
 document.querySelectorAll('.cosmos-socials button').forEach((button) => {
   button.onclick = () => {
-    document.getElementById('login-msg').textContent = `${button.dataset.provider} sign-in is not configured yet.`;
+    window.location.href = `/api/auth/oauth/${button.dataset.provider.toLowerCase()}/start`;
   };
 });
 
@@ -106,6 +107,11 @@ const rememberedEmail = localStorage.getItem('rememberedEmail');
 if (rememberedEmail) {
   document.getElementById('email').value = rememberedEmail;
   document.getElementById('remember-me').checked = true;
+}
+
+const oauthError = new URLSearchParams(window.location.search).get('oauth_error');
+if (oauthError) {
+  document.getElementById('login-msg').textContent = oauthError;
 }
 
 const loginBtn = document.getElementById('login-btn');

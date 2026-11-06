@@ -1,140 +1,441 @@
 <!doctype html>
-<html lang='en'>
+<html lang="en">
 <head>
-<meta charset='utf-8'>
-<title>Study Planner | AI Study Assistant</title>
-<link rel='stylesheet' href='styles.css'>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study Planner | NextMind</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
-    </div>
-    <nav class="nav-links">
-      <a href="dashboard.html"><span>📊</span> Dashboard</a>
-      <a href="notebook.html"><span>📓</span> Notes</a>
-      <a href="planner.html" class="active"><span>✅</span> Tasks</a>
-      <a href="profile.html"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
-    </nav>
-  </aside>
+<body class="dashboard-page">
+  <div class="dashboard-shell">
+    <div class="dashboard-overlay" id="sidebar-overlay"></div>
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+      <a class="dashboard-brand" href="dashboard.html"><span class="dashboard-brand-mark">N</span><span>NextMind</span></a>
+      <nav class="dashboard-nav" aria-label="Main navigation">
+        <a href="dashboard.html"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+        <a href="notebook.html"><span class="nav-icon">▱</span><span>Notes</span></a>
+        <a class="active" href="planner.html"><span class="nav-icon">✓</span><span>Tasks</span></a>
+        <a href="profile.html"><span class="nav-icon">○</span><span>Profile</span></a>
+      </nav>
+      <button class="dashboard-profile" id="logout-sidebar" type="button">
+        <span class="profile-avatar" id="sidebar-avatar">V</span><span><strong id="sidebar-user">Student</strong><small>Sign out</small></span>
+      </button>
+    </aside>
 
-  <main class="main-content">
-    <section class="page-hero">
-      <p class="auth-kicker">Operation Management</p>
-      <h1>Task Planner</h1>
-      <p class="section-intro">Optimize your study cycles and manage task priorities within the neural network.</p>
-    </section>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>Initialize Task</h3>
-        <p class="section-intro">Create a new task node with specific metrics.</p>
-        <input id="task-title" class="input-field" placeholder="Task Title">
-        <input id="task-deadline" class="input-field" type="date">
-        <select id="task-priority" class="input-field">
-          <option value="low">Priority: Low</option>
-          <option value="medium" selected>Priority: Medium</option>
-          <option value="high">Priority: High</option>
-        </select>
-        <button class="btn" id="add-task" style="width: 100%;">Commit Task</button>
-      </div>
-
-      <div class="card">
-        <h3>Active Operations</h3>
-        <p class="section-intro">Review and manage current task states.</p>
-        <ul id="task-list" style="list-style: none;"></ul>
-        <div id="task-pagination" style="display:flex; gap:0.5rem; align-items:center; margin-top:1rem; flex-wrap:wrap;"></div>
-      </div>
-    </div>
-  </main>
-</div>
-
-<script src="app.js"></script>
-<script src="neural-bg.js"></script>
-<script>
-requireAuth();
-initDarkMode();
-
-document.getElementById('logout-sidebar').onclick = (e) => {
-  e.preventDefault();
-  clearToken();
-  localStorage.removeItem('user');
-  window.location = 'index.html';
-};
-
-let taskPage = 1;
-const taskLimit = 10;
-
-async function loadTasks(){
-  const res = await apiFetch(`/tasks?page=${taskPage}&limit=${taskLimit}`);
-  const container = document.getElementById('task-list');
-  const pagination = document.getElementById('task-pagination');
-  if(!res.success) return;
-  const tasks = Array.isArray(res.data.items) ? res.data.items : [];
-  container.innerHTML='';
-  if(tasks.length === 0) {
-    container.innerHTML='<li style="color: var(--text-muted);">No active operations.</li>';
-  } else {
-    tasks.forEach(task=>{
-      const li=document.createElement('li');
-      li.className='card';
-      li.style.padding='1rem';
-      li.style.marginBottom='0.75rem';
-      li.style.borderLeft='4px solid var(--primary)';
-      const statusClass = task.status === 'completed' ? 'badge-success' : 'badge-warning';
-      const priorityClass = task.priority === 'high' ? 'badge-danger' : task.priority === 'medium' ? 'badge-warning' : 'badge-success';
-      li.innerHTML=`
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-          <div>
-            <div style="font-weight: 700;">${task.title}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Deadline: ${task.deadline}</div>
-          </div>
-          <div style="display:flex; flex-direction: column; gap:0.25rem; align-items: flex-end;">
-            <span class="badge ${statusClass}">${task.status}</span>
-            <span class="badge ${priorityClass}">${task.priority}</span>
-          </div>
+    <main class="dashboard-main planner-main">
+      <header class="dashboard-topbar planner-topbar">
+        <button class="dashboard-mobile-menu" id="mobile-menu" type="button" aria-label="Open menu">☰</button>
+        <label class="dashboard-search"><span aria-hidden="true">⌕</span><input id="planner-search" type="search" placeholder="Search"></label>
+        <div class="dashboard-actions">
+          <button class="dashboard-icon-button" id="theme-button" type="button" aria-label="Theme">⚙</button>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Notifications">♧</a>
+          <a class="dashboard-icon-button" href="profile.html" aria-label="Profile">○</a>
         </div>
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-          <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="markDone('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">${task.status === 'completed' ? 'Revert' : 'Complete'}</button>
-          <button class="btn btn-muted" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="removeTask('${task.id}')">Purge</button>
+      </header>
+
+      <div class="planner-content">
+        <div class="planner-heading-row">
+          <div><h1>Intelligent Study Planner</h1><p>The student's personal academic manager.</p></div>
+          <button class="planner-add-button" id="open-task-modal" type="button"><span>＋</span> Add Task</button>
         </div>
-      `;
-      container.appendChild(li);
+
+        <div class="planner-layout">
+          <div class="planner-summary-column">
+            <section class="planner-panel exam-countdown-panel">
+              <h2>Upcoming Exam Countdown</h2>
+              <form class="exam-countdown-form" id="exam-form">
+                <input id="exam-subject" required maxlength="60" placeholder="Subject or exam name" aria-label="Subject or exam name">
+                <input id="exam-date" required type="date" aria-label="Examination date">
+                <button type="submit">Add</button>
+              </form>
+              <div class="exam-countdown-list" id="exam-countdown-list">
+                <div><span>Computer Networks Exam</span><strong>Dec 12 (36 days left)</strong></div>
+                <div><span>Operating Systems</span><strong>Dec 18 (42 days left)</strong></div>
+                <div><span>Database Systems</span><strong>Dec 20 (44 days left)</strong></div>
+              </div>
+            </section>
+
+            <section class="planner-panel daily-schedule-panel">
+              <div class="planner-panel-heading"><h2>Daily Study Schedule</h2><button type="button" aria-label="Schedule calendar">▣</button></div>
+              <nav class="planner-tabs" aria-label="Task filters">
+                <button class="active" data-filter="all" type="button">All Tasks</button>
+                <button data-filter="pending" type="button">In Progress</button>
+                <button data-filter="completed" type="button">Completed</button>
+              </nav>
+              <div class="planner-task-list" id="task-list" role="list">
+                <article class="planner-task-row"><time>09:00 AM - 10:30 AM</time><strong>Computer Networks (Chapter 4: TCP &amp; UDP)</strong><span class="planner-priority low">Complete</span></article>
+                <article class="planner-task-row"><time>11:00 AM - 12:30 PM</time><strong>Mathematics (Calculus Limits)</strong><span class="planner-priority medium">Active</span></article>
+                <article class="planner-task-row"><time>02:00 PM - 03:30 PM</time><strong>OS (Process Sync)</strong><span class="planner-priority low">Pending</span></article>
+                <article class="planner-task-row"><time>04:00 PM - 05:30 PM</time><strong>DBMS (Queries)</strong><span class="planner-priority high">Upcoming</span></article>
+              </div>
+              <div class="planner-pagination" id="task-pagination"></div>
+            </section>
+          </div>
+
+          <aside class="planner-right-column">
+            <section class="planner-panel syllabus-tracker-panel">
+              <h2>Syllabus Completion Tracker</h2>
+              <div class="syllabus-progress">
+                <div class="syllabus-ring" id="syllabus-ring"><span id="revision-percent">0%</span><small>Completed</small></div>
+                <ul id="syllabus-subject-list"></ul>
+              </div>
+            </section>
+
+            <section class="planner-panel auto-adjust-panel">
+              <h2>Auto-Adjust Schedule <button type="button" aria-label="Dismiss">×</button></h2>
+              <p>Schedule adjusted: 3 missed tasks from yesterday redistributed to free slots this week.</p>
+              <button type="button">View Changes</button>
+            </section>
+
+            <section class="planner-panel subjects-panel">
+              <div class="planner-panel-heading"><h2>Subjects &amp; Syllabus</h2><button type="button" aria-label="Expand">↗</button></div>
+              <form class="subject-add-form" id="subject-add-form">
+                <input id="subject-name" required maxlength="60" placeholder="Add subject" aria-label="Subject name">
+                <button type="submit">Add</button>
+              </form>
+              <div id="subject-list" class="subject-list"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="planner-modal-backdrop" id="task-modal" hidden>
+    <form class="planner-modal" id="task-form">
+      <div class="planner-modal-title"><h2>Add a study task</h2><button id="close-task-modal" type="button" aria-label="Close">×</button></div>
+      <label>Task title<input id="task-title" required placeholder="What do you need to finish?"></label>
+      <div class="planner-modal-grid">
+        <label>Deadline<input id="task-deadline" type="date" required></label>
+        <label>Priority<select id="task-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+      </div>
+      <p class="planner-form-error" id="task-form-error" role="alert"></p>
+      <button class="planner-add-button planner-save-button" type="submit">Save Task</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+  requireAuth();
+  initDarkMode();
+  document.getElementById('theme-button').onclick = () => {
+    const dark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', String(dark));
+    applyDarkMode(dark);
+  };
+  const plannerSidebar = document.getElementById('dashboard-sidebar');
+  const plannerOverlay = document.getElementById('sidebar-overlay');
+  document.getElementById('mobile-menu').onclick = () => { plannerSidebar.classList.add('open'); plannerOverlay.classList.add('active'); };
+  plannerOverlay.onclick = () => { plannerSidebar.classList.remove('open'); plannerOverlay.classList.remove('active'); };
+  document.getElementById('logout-sidebar').onclick = () => { clearToken(); localStorage.removeItem('user'); location.href = 'index.html'; };
+
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const name = user?.name || user?.username || 'Vishal';
+    document.getElementById('planner-user').textContent = name.split(/\s+/)[0];
+    document.getElementById('sidebar-user').textContent = name;
+    document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpper;
+  } catch (_) {}
+
+  let allTasks = [];
+  let activeFilter = 'all';
+  let taskPage = 1;
+  const taskLimit = 50;
+
+  function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+
+  function dueLabel(value) {
+    if (!value) return 'No deadline';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(`${value}T00:00:00`);
+    const diff = Math.round((due - today) / 86400000);
+    if (diff === 0) return 'Due Today';
+    if (diff === 1) return 'Due Tomorrow';
+    if (diff > 1) return `Due ${value}`;
+    return 'Overdue';
+  }
+
+  const examStorageKey = 'nextmind-exams';
+  const defaultExams = [
+    { id: 'computer-networks', subject: 'Computer Networks Exam', date: '2026-12-12' },
+    { id: 'operating-systems', subject: 'Operating Systems', date: '2026-12-18' },
+    { id: 'database-systems', subject: 'Database Systems', date: '2026-12-20' },
+  ];
+
+  function getExams() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(examStorageKey) || 'null');
+      return Array.isArray(saved) ? saved : defaultExams;
+    } catch (_) {
+      return defaultExams;
+    }
+  }
+
+  function saveExams(exams) {
+    localStorage.setItem(examStorageKey, JSON.stringify(exams));
+  }
+
+  function renderExams() {
+    const container = document.getElementById('exam-countdown-list');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const exams = getExams()
+      .filter(exam => exam.date)
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    container.innerHTML = exams.length ? exams.map(exam => {
+      const examDate = new Date(`${exam.date}T00:00:00`);
+      const days = Math.round((examDate - today) / 86400000);
+      const countdown = days > 1 ? `${days} days left` : days === 1 ? 'Tomorrow' : days === 0 ? 'Today' : 'Exam passed';
+      const formattedDate = examDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return `<div><span>${escapeHtml(exam.subject)}</span><strong>${formattedDate} (${countdown})</strong><button type="button" data-remove-exam="${escapeHtml(exam.id)}" aria-label="Remove ${escapeHtml(exam.subject)}">×</button></div>`;
+    }).join('') : '<div class="exam-countdown-empty">Add an examination date to begin.</div>';
+
+    container.querySelectorAll('[data-remove-exam]').forEach(button => {
+      button.onclick = () => {
+        saveExams(getExams().filter(exam => exam.id !== button.dataset.removeExam));
+        renderExams();
+      };
     });
   }
-  updateTaskPagination(res.data);
-}
 
-function updateTaskPagination(data){
-  const pagination = document.getElementById('task-pagination');
-  if(!data || data.pages <= 1){ pagination.innerHTML=''; return; }
-  pagination.innerHTML = `
-    <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" ${data.page <= 1 ? 'disabled' : ''} onclick="changeTaskPage(-1)">Prev</button>
-    <span style="font-size:0.8rem; color:var(--text-muted);">Page ${data.page} of ${data.pages}</span>
-    <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" ${data.page >= data.pages ? 'disabled' : ''} onclick="changeTaskPage(1)">Next</button>
-  `;
-}
+  document.getElementById('exam-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const subject = document.getElementById('exam-subject').value.trim();
+    const date = document.getElementById('exam-date').value;
+    if (!subject || !date) return;
+    saveExams([...getExams(), {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      subject,
+      date,
+    }]);
+    event.currentTarget.reset();
+    renderExams();
+  });
 
-window.changeTaskPage = (delta) => { taskPage = Math.max(1, taskPage + delta); loadTasks(); };
-window.markDone = async(id, newStatus)=>{ if((await apiFetch(`/tasks/${id}`, 'PUT', {status:newStatus})).success) loadTasks(); };
-window.removeTask = async(id)=>{ if(confirm('Purge task?')) { if((await apiFetch(`/tasks/${id}`, 'DELETE')).success) loadTasks(); } };
-
-document.getElementById('add-task').onclick = async()=>{
-  const title = document.getElementById('task-title').value.trim();
-  const deadline = document.getElementById('task-deadline').value;
-  const priority = document.getElementById('task-priority').value;
-  if(!title||!deadline) return;
-  if((await apiFetch('/tasks','POST',{title,deadline,priority})).success) {
-    document.getElementById('task-title').value='';
-    document.getElementById('task-deadline').value='';
-    taskPage = 1;
-    loadTasks();
+  function renderWeek() {
+    const container = document.getElementById('planner-days');
+    if (!container) return;
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    container.innerHTML = names.map((name, index) => {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + index);
+      const selected = day.toDateString() === today.toDateString();
+      const dots = [2, 1, 1, 0, 2, 1, 0][index];
+      return `<button class="${selected ? 'selected' : ''}" type="button"><strong>${name}</strong><span>${day.getDate()}</span><small>${'<i></i>'.repeat(dots)}</small></button>`;
+    }).join('');
   }
-};
-loadTasks();
-</script>
+
+  function filteredTasks() {
+    const search = document.getElementById('planner-search').value.trim().toLowerCase();
+    return allTasks.filter(task => {
+      const matchesFilter = activeFilter === 'all' || activeFilter === 'revision'
+        ? activeFilter === 'revision' ? /exam|revision|test|quiz/i.test(task.title) : true
+        : task.status === activeFilter;
+      return matchesFilter && (!search || `${task.title} ${task.deadline} ${task.priority}`.toLowerCase().includes(search));
+    });
+  }
+
+  function renderTasks() {
+    const container = document.getElementById('task-list');
+    const tasks = filteredTasks();
+    container.innerHTML = tasks.length ? tasks.map(task => `
+      <article class="planner-task-row" role="listitem">
+        <input class="planner-task-check" type="checkbox" ${task.status === 'completed' ? 'checked' : ''} data-task-check="${task.id}" aria-label="Mark ${escapeHtml(task.title)} complete">
+        <div class="planner-task-name"><strong class="${task.status === 'completed' ? 'completed' : ''}">${escapeHtml(task.title)}</strong></div>
+        <span class="planner-subject">${escapeHtml(/computer/i.test(task.title) ? 'Computer Networks' : /os|operating/i.test(task.title) ? 'Introduction to OS' : 'Data Structures')}</span>
+        <span class="planner-due">${escapeHtml(dueLabel(task.deadline))}</span>
+        <span class="planner-priority ${escapeHtml(task.priority)}">${escapeHtml(task.priority[0].toUpperCase() + task.priority.slice(1))}</span>
+        <button class="planner-delete" type="button" data-task-delete="${task.id}" aria-label="Delete task">×</button>
+      </article>`).join('') : '<div class="planner-empty">No tasks match this view.</div>';
+
+    container.querySelectorAll('[data-task-check]').forEach(check => {
+      check.onchange = () => updateTask(check.dataset.taskCheck, { status: check.checked ? 'completed' : 'pending' });
+    });
+    container.querySelectorAll('[data-task-delete]').forEach(button => {
+      button.onclick = () => deleteTask(button.dataset.taskDelete);
+    });
+    updateRevisionProgress();
+  }
+
+  function updateRevisionProgress() {
+    // The syllabus ring is driven by subject units in renderSyllabusTracker.
+  }
+
+  async function loadTasks() {
+    const response = await apiFetch(`/tasks?page=${taskPage}&limit=${taskLimit}`);
+    if (!response.success) return;
+    allTasks = Array.isArray(response.data?.items) ? response.data.items : [];
+    renderTasks();
+    document.getElementById('task-pagination').innerHTML = '';
+  }
+
+  async function updateTask(id, body) {
+    const response = await apiFetch(`/tasks/${id}`, 'PUT', body);
+    if (response.success) loadTasks();
+  }
+
+  async function deleteTask(id) {
+    if (!confirm('Delete this task?')) return;
+    const response = await apiFetch(`/tasks/${id}`, 'DELETE');
+    if (response.success) loadTasks();
+  }
+
+  const modal = document.getElementById('task-modal');
+  document.getElementById('open-task-modal').onclick = () => {
+    modal.hidden = false;
+    document.getElementById('task-title').focus();
+  };
+  document.getElementById('close-task-modal').onclick = () => { modal.hidden = true; };
+  modal.onclick = event => { if (event.target === modal) modal.hidden = true; };
+
+  document.getElementById('task-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const error = document.getElementById('task-form-error');
+    const title = document.getElementById('task-title').value.trim();
+    const deadline = document.getElementById('task-deadline').value;
+    const priority = document.getElementById('task-priority').value;
+    if (!title || !deadline) { error.textContent = 'Add a title and deadline.'; return; }
+    const response = await apiFetch('/tasks', 'POST', { title, deadline, priority });
+    if (!response.success) { error.textContent = response.message || 'Unable to add task.'; return; }
+    form.reset();
+    error.textContent = '';
+    modal.hidden = true;
+    loadTasks();
+  });
+
+  document.querySelectorAll('.planner-tabs button').forEach(button => {
+    button.onclick = () => {
+      document.querySelectorAll('.planner-tabs button').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      activeFilter = button.dataset.filter;
+      renderTasks();
+    };
+  });
+  document.getElementById('planner-search').oninput = renderTasks;
+  document.querySelectorAll('.planner-timeline button').forEach(button => {
+    button.onclick = () => button.classList.toggle('done');
+  });
+
+  const syllabusStorageKey = 'nextmind-syllabus';
+  const defaultSubjects = [
+    { id: 'computer-networks', name: 'Computer Networks', units: [{ id: 'cn-1', name: 'Network Fundamentals', completed: true }] },
+    { id: 'operating-systems', name: 'Operating Systems', units: [{ id: 'os-1', name: 'Process Management', completed: false }] },
+    { id: 'mathematics', name: 'Mathematics', units: [{ id: 'math-1', name: 'Calculus', completed: true }] },
+    { id: 'database-systems', name: 'Database Systems', units: [{ id: 'db-1', name: 'Database Queries', completed: false }] },
+  ];
+
+  function getSubjects() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(syllabusStorageKey) || 'null');
+      return Array.isArray(saved)
+        ? saved.map(subject => ({ ...subject, units: Array.isArray(subject.units) ? subject.units : [] }))
+        : defaultSubjects;
+    } catch (_) {
+      return defaultSubjects;
+    }
+  }
+
+  function saveSubjects(subjects) {
+    localStorage.setItem(syllabusStorageKey, JSON.stringify(subjects));
+    renderSubjects();
+  }
+
+  function subjectProgress(subject) {
+    const units = Array.isArray(subject.units) ? subject.units : [];
+    if (!units.length) return 0;
+    return Math.round(units.filter(unit => unit.completed).length / units.length * 100);
+  }
+
+  function renderSyllabusTracker(subjects) {
+    const completedUnits = subjects.reduce((total, subject) => total + (subject.units || []).filter(unit => unit.completed).length, 0);
+    const totalUnits = subjects.reduce((total, subject) => total + (subject.units || []).length, 0);
+    const percent = totalUnits ? Math.round(completedUnits / totalUnits * 100) : 0;
+    document.getElementById('revision-percent').textContent = `${percent}%`;
+    document.getElementById('syllabus-ring').style.background =
+      `radial-gradient(circle, #343541 58%, transparent 60%), conic-gradient(#1fc1b7 0 ${percent * 3.6}deg, rgba(255,255,255,.08) 0)`;
+    document.getElementById('syllabus-subject-list').innerHTML = subjects.length
+      ? subjects.map(subject => `<li><b class="${subjectProgress(subject) === 100 ? 'completed' : ''}"></b>${escapeHtml(subject.name)} <span>${subjectProgress(subject)}%</span></li>`).join('')
+      : '<li class="subject-empty">Add a subject to begin.</li>';
+  }
+
+  function renderSubjects() {
+    const subjects = getSubjects();
+    const container = document.getElementById('subject-list');
+    container.innerHTML = subjects.length ? subjects.map(subject => `
+      <article class="subject-card">
+        <div class="subject-row">
+          <div>
+            <strong>${escapeHtml(subject.name)} (${subjectProgress(subject)}%)</strong>
+            <button class="subject-delete" type="button" data-delete-subject="${escapeHtml(subject.id)}" aria-label="Delete ${escapeHtml(subject.name)}">×</button>
+          </div>
+          <span style="--subject-progress:${subjectProgress(subject)}%"></span>
+        </div>
+        <form class="unit-add-form" data-unit-form="${escapeHtml(subject.id)}">
+          <input required maxlength="80" placeholder="Add unit" aria-label="Unit name for ${escapeHtml(subject.name)}">
+          <button type="submit">Add</button>
+        </form>
+        <div class="subject-unit-list">
+          ${subject.units.map(unit => `
+            <label class="subject-unit">
+              <span class="${unit.completed ? 'completed' : ''}">${escapeHtml(unit.name)}</span>
+              <input type="checkbox" data-unit-check="${escapeHtml(subject.id)}" data-unit-id="${escapeHtml(unit.id)}" ${unit.completed ? 'checked' : ''}>
+              <button type="button" data-delete-unit="${escapeHtml(subject.id)}" data-unit-id="${escapeHtml(unit.id)}" aria-label="Delete ${escapeHtml(unit.name)}">×</button>
+            </label>`).join('') || '<p class="unit-empty">No units added yet.</p>'}
+        </div>
+      </article>`).join('') : '<div class="subject-empty">No subjects added yet.</div>';
+
+    container.querySelectorAll('[data-delete-subject]').forEach(button => {
+      button.onclick = () => saveSubjects(subjects.filter(subject => subject.id !== button.dataset.deleteSubject));
+    });
+    container.querySelectorAll('[data-unit-form]').forEach(form => {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const name = form.querySelector('input').value.trim();
+        if (!name) return;
+        const next = subjects.map(subject => subject.id === form.dataset.unitForm
+          ? { ...subject, units: [...subject.units, { id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, name, completed: false }] }
+          : subject);
+        form.reset();
+        saveSubjects(next);
+      });
+    });
+    container.querySelectorAll('[data-unit-check]').forEach(check => {
+      check.onchange = () => saveSubjects(subjects.map(subject => subject.id === check.dataset.unitCheck
+        ? { ...subject, units: subject.units.map(unit => unit.id === check.dataset.unitId ? { ...unit, completed: check.checked } : unit) }
+        : subject));
+    });
+    container.querySelectorAll('[data-delete-unit]').forEach(button => {
+      button.onclick = () => saveSubjects(subjects.map(subject => subject.id === button.dataset.deleteUnit
+        ? { ...subject, units: subject.units.filter(unit => unit.id !== button.dataset.unitId) }
+        : subject));
+    });
+    renderSyllabusTracker(subjects);
+  }
+
+  document.getElementById('subject-add-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const input = document.getElementById('subject-name');
+    const name = input.value.trim();
+    if (!name) return;
+    const subjects = getSubjects();
+    if (subjects.some(subject => subject.name.toLowerCase() === name.toLowerCase())) return;
+    saveSubjects([...subjects, { id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, name, units: [] }]);
+    event.currentTarget.reset();
+  });
+
+  renderExams();
+  renderSubjects();
+  loadTasks();
+  </script>
 </body>
 </html>

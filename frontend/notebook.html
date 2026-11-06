@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Notes Hub | NextMind</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
@@ -63,12 +64,42 @@
           </div>
           <button class="notes-ai-close" id="notes-ai-close" type="button" aria-label="Close AI tools">×</button>
         </div>
-        <div class="notes-ai-controls">
+        <div class="notes-ai-controls" id="notes-ai-controls">
           <label>Note<select id="notes-ai-note"><option value="">All my notes</option></select></label>
           <label id="notes-ai-topic-wrap">Topic or question<textarea id="notes-ai-input" rows="4" placeholder="Ask a question about your notes..."></textarea></label>
         </div>
         <button class="notes-primary-button" id="notes-ai-run" type="button">Run AI</button>
         <div class="notes-ai-result" id="notes-ai-result" role="status" aria-live="polite"></div>
+        <div class="nextmind-chat" id="nextmind-chat" hidden>
+          <div class="nextmind-chat-stream" id="nextmind-chat-stream">
+            <article class="chat-example">
+              <div class="chat-user-bubble">Explain the difference between TCP and UDP in computer networks.</div>
+              <div class="chat-ai-message">
+                <span class="chat-ai-avatar">N</span>
+                <div>
+                  <h3>TCP vs. UDP</h3>
+                  <p>TCP provides reliable, ordered communication, while UDP prioritises speed and minimal overhead.</p>
+                  <table>
+                    <thead><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr></thead>
+                    <tbody><tr><td>Delivery</td><td>Reliable and ordered</td><td>Best effort</td></tr><tr><td>Connection</td><td>Connection-based</td><td>Connectionless</td></tr><tr><td>Best for</td><td>Web, email, file transfer</td><td>Streaming, gaming, voice</td></tr></tbody>
+                  </table>
+                  <div class="chat-code">import socket<br>s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</div>
+                  <p class="chat-math">Latency: T<sub>UDP</sub> &lt; T<sub>TCP</sub></p>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="nextmind-chat-prompts">
+            <button type="button" data-chat-prompt="Explain this concept simply">Explain this concept simply</button>
+            <button type="button" data-chat-prompt="Generate practice questions">Generate practice questions</button>
+            <button type="button" data-chat-prompt="Summarize key points">Summarize key points</button>
+          </div>
+          <div class="nextmind-chat-composer">
+            <button type="button" aria-label="Attach file" id="chat-attach">＋</button>
+            <textarea id="nextmind-chat-input" rows="1" placeholder="Ask NextMind anything..."></textarea>
+            <button class="nextmind-chat-send" type="button" id="nextmind-chat-send" aria-label="Send message">➤</button>
+          </div>
+        </div>
       </section>
 
       <div class="notes-workspace" id="new-note">
@@ -178,6 +209,8 @@ document.getElementById('flashcard-card').onclick = () => {
   openNotesAI('flashcards', 'Create flashcards', 'Select a note and enter a topic to generate revision cards.', 'Enter a topic...');
 };
 
+let notesAIType = 'chat';
+
 const dashboardAIPrompt = new URLSearchParams(window.location.search).get('ai_prompt');
 if (dashboardAIPrompt) {
   openNotesAI('chat', 'Ask NextMind about your notes', 'Choose a note, then ask a question or request study help.', 'Ask a question about your notes...')
@@ -188,8 +221,6 @@ if (dashboardAIPrompt) {
   openNotesAI('chat', 'Ask NextMind about your notes', 'Choose a note, then ask a question or request study help.', 'Ask a question about your notes...');
 }
 
-let notesAIType = 'chat';
-
 async function openNotesAI(type, title, description, placeholder) {
   notesAIType = type;
   const panel = document.getElementById('notes-ai-panel');
@@ -199,6 +230,12 @@ async function openNotesAI(type, title, description, placeholder) {
   input.placeholder = placeholder;
   input.value = '';
   document.getElementById('notes-ai-result').textContent = '';
+  const isChat = type === 'chat';
+  document.getElementById('notes-ai-controls').hidden = isChat;
+  document.getElementById('notes-ai-run').hidden = isChat;
+  document.getElementById('notes-ai-result').hidden = isChat;
+  document.getElementById('nextmind-chat').hidden = !isChat;
+  document.querySelector('.notes-ai-panel .notes-panel-title').hidden = isChat;
   document.getElementById('notes-ai-run').textContent = type === 'chat' ? 'Ask NextMind' : type === 'summary' ? 'Summarise notes' : type === 'quiz' ? 'Generate quiz' : 'Create flashcards';
   await loadNotesAIOptions();
   panel.hidden = false;
@@ -217,7 +254,56 @@ async function loadNotesAIOptions() {
 
 document.getElementById('notes-ai-close').onclick = () => {
   document.getElementById('notes-ai-panel').hidden = true;
+  document.querySelector('.notes-ai-panel .notes-panel-title').hidden = false;
+  document.querySelectorAll('.dashboard-nav a').forEach(link => link.classList.remove('active'));
+  document.querySelector('.dashboard-nav a[href="notebook.html"]').classList.add('active');
 };
+
+function escapeChatHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  })[character]);
+}
+
+function appendChatMessage(message, isUser) {
+  const stream = document.getElementById('nextmind-chat-stream');
+  const messageElement = document.createElement('div');
+  messageElement.className = isUser ? 'chat-user-message' : 'chat-ai-message';
+  messageElement.innerHTML = isUser
+    ? `<div class="chat-user-bubble">${escapeChatHtml(message)}</div>`
+    : `<span class="chat-ai-avatar">N</span><div class="chat-ai-response">${escapeChatHtml(message).replace(/\n/g, '<br>')}</div>`;
+  stream.appendChild(messageElement);
+  stream.scrollTop = stream.scrollHeight;
+}
+
+async function sendStudyChat() {
+  const input = document.getElementById('nextmind-chat-input');
+  const message = input.value.trim();
+  if (!message) return;
+  appendChatMessage(message, true);
+  input.value = '';
+  const response = await apiFetch('/ai/chat', 'POST', { message });
+  if (!response.success) {
+    appendChatMessage(response.message || 'The AI request could not be completed.', false);
+    return;
+  }
+  appendChatMessage(response.data?.answer || response.data?.text || JSON.stringify(response.data), false);
+}
+
+document.getElementById('nextmind-chat-send').onclick = sendStudyChat;
+document.getElementById('nextmind-chat-input').onkeydown = (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendStudyChat();
+  }
+};
+document.querySelectorAll('[data-chat-prompt]').forEach(button => {
+  button.onclick = () => {
+    document.getElementById('nextmind-chat-input').value = button.dataset.chatPrompt;
+    sendStudyChat();
+  };
+});
+document.getElementById('chat-attach').onclick = () => document.getElementById('file-input').click();
 
 document.getElementById('notes-ai-run').onclick = async () => {
   const button = document.getElementById('notes-ai-run');
