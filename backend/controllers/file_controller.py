@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 
 from utils.helpers import parse_object_id, resp
+from controllers.file_analyzer import extract_text_from_file
 
 # Configure file upload
 UPLOAD_FOLDER = os.getenv(
@@ -158,3 +159,37 @@ def list_files(app):
         })
     
     return resp(True, 'Files fetched', result)
+
+
+@jwt_required()
+def search_files(app):
+    user_id = get_jwt_identity()
+    query = request.args.get('q', '').strip().lower()
+    if len(query) < 2:
+        return resp(False, 'Enter at least 2 characters to search', status=400)
+
+    matches = []
+    for file_doc in app.mongo.db.files.find({'user_id': user_id}).sort('created_at', -1):
+        filename = str(file_doc.get('original_filename', '')).lower()
+        file_id = str(file_doc['_id'])
+        extracted = extract_text_from_file(app, file_id)
+        text = extracted['data']['text'] if extracted.get('success') else ''
+        if query not in filename and query not in text.lower():
+            continue
+
+        if query in filename:
+            snippet = file_doc.get('original_filename', '')
+        else:
+            position = text.lower().find(query)
+            start = max(0, position - 70)
+            end = min(len(text), position + len(query) + 150)
+            snippet = ('...' if start else '') + text[start:end].strip() + ('...' if end < len(text) else '')
+
+        matches.append({
+            'id': file_id,
+            'filename': file_doc.get('original_filename', ''),
+            'type': file_doc.get('file_type', ''),
+            'snippet': snippet,
+        })
+
+    return resp(True, 'Document search completed', matches)

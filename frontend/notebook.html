@@ -66,28 +66,13 @@
         </div>
         <div class="notes-ai-controls" id="notes-ai-controls">
           <label>Note<select id="notes-ai-note"><option value="">All my notes</option></select></label>
+          <label>Uploaded resource<select id="notes-ai-file"><option value="">No uploaded resource</option></select></label>
           <label id="notes-ai-topic-wrap">Topic or question<textarea id="notes-ai-input" rows="4" placeholder="Ask a question about your notes..."></textarea></label>
         </div>
         <button class="notes-primary-button" id="notes-ai-run" type="button">Run AI</button>
         <div class="notes-ai-result" id="notes-ai-result" role="status" aria-live="polite"></div>
         <div class="nextmind-chat" id="nextmind-chat" hidden>
           <div class="nextmind-chat-stream" id="nextmind-chat-stream">
-            <article class="chat-example">
-              <div class="chat-user-bubble">Explain the difference between TCP and UDP in computer networks.</div>
-              <div class="chat-ai-message">
-                <span class="chat-ai-avatar">N</span>
-                <div>
-                  <h3>TCP vs. UDP</h3>
-                  <p>TCP provides reliable, ordered communication, while UDP prioritises speed and minimal overhead.</p>
-                  <table>
-                    <thead><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr></thead>
-                    <tbody><tr><td>Delivery</td><td>Reliable and ordered</td><td>Best effort</td></tr><tr><td>Connection</td><td>Connection-based</td><td>Connectionless</td></tr><tr><td>Best for</td><td>Web, email, file transfer</td><td>Streaming, gaming, voice</td></tr></tbody>
-                  </table>
-                  <div class="chat-code">import socket<br>s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</div>
-                  <p class="chat-math">Latency: T<sub>UDP</sub> &lt; T<sub>TCP</sub></p>
-                </div>
-              </div>
-            </article>
           </div>
           <div class="nextmind-chat-prompts">
             <button type="button" data-chat-prompt="Explain this concept simply">Explain this concept simply</button>
@@ -134,6 +119,8 @@
           <p>PDF, TXT, JPG, PNG, or DOCX · Maximum 20 MB</p>
           <button class="notes-secondary-button" id="upload-file" type="button">Upload Resource</button>
           <p id="file-msg" role="status"></p>
+          <input id="resource-search" type="search" placeholder="Search document text..." aria-label="Search uploaded document text">
+          <div id="resource-search-results"></div>
           <ul id="file-list"></ul>
         </section>
       </div>
@@ -237,7 +224,15 @@ async function openNotesAI(type, title, description, placeholder) {
   document.getElementById('nextmind-chat').hidden = !isChat;
   document.querySelector('.notes-ai-panel .notes-panel-title').hidden = isChat;
   document.getElementById('notes-ai-run').textContent = type === 'chat' ? 'Ask NextMind' : type === 'summary' ? 'Summarise notes' : type === 'quiz' ? 'Generate quiz' : 'Create flashcards';
-  await loadNotesAIOptions();
+  try {
+    await loadNotesAIOptions();
+  } catch (error) {
+    document.getElementById('notes-ai-result').textContent = error?.message || 'Study material could not be loaded.';
+  }
+  if (isChat) {
+    document.getElementById('notes-ai-note').value = '';
+    document.getElementById('notes-ai-file').value = '';
+  }
   panel.hidden = false;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   input.focus();
@@ -249,6 +244,12 @@ async function loadNotesAIOptions() {
   const notes = Array.isArray(response?.data?.items) ? response.data.items : [];
   select.innerHTML = '<option value="">All my notes</option>' + notes.map(note =>
     `<option value="${note.id}">${String(note.subject || 'Untitled').replace(/[&<>"']/g, '')} - ${String(note.topic || '').replace(/[&<>"']/g, '')}</option>`
+  ).join('');
+  const fileSelect = document.getElementById('notes-ai-file');
+  const filesResponse = await apiFetch('/files');
+  const files = Array.isArray(filesResponse?.data) ? filesResponse.data : [];
+  fileSelect.innerHTML = '<option value="">No uploaded resource</option>' + files.map(file =>
+    `<option value="${escapeHtml(file.id)}">${escapeHtml(file.filename)}</option>`
   ).join('');
 }
 
@@ -282,12 +283,21 @@ async function sendStudyChat() {
   if (!message) return;
   appendChatMessage(message, true);
   input.value = '';
-  const response = await apiFetch('/ai/chat', 'POST', { message });
-  if (!response.success) {
-    appendChatMessage(response.message || 'The AI request could not be completed.', false);
-    return;
+  const noteId = document.getElementById('notes-ai-note')?.value;
+  const fileId = document.getElementById('notes-ai-file')?.value;
+  const payload = { message };
+  if (noteId) payload.note_id = noteId;
+  if (fileId) payload.file_id = fileId;
+  try {
+    const response = await apiFetch('/ai/chat', 'POST', payload);
+    if (!response.success) {
+      appendChatMessage(response.message || 'The AI request could not be completed.', false);
+      return;
+    }
+    appendChatMessage(response.data?.answer || response.data?.text || JSON.stringify(response.data), false);
+  } catch (error) {
+    appendChatMessage(error?.message || 'The AI request could not be completed.', false);
   }
-  appendChatMessage(response.data?.answer || response.data?.text || JSON.stringify(response.data), false);
 }
 
 document.getElementById('nextmind-chat-send').onclick = sendStudyChat;
@@ -309,6 +319,7 @@ document.getElementById('notes-ai-run').onclick = async () => {
   const button = document.getElementById('notes-ai-run');
   const result = document.getElementById('notes-ai-result');
   const noteId = document.getElementById('notes-ai-note').value;
+  const fileId = document.getElementById('notes-ai-file').value;
   const input = document.getElementById('notes-ai-input').value.trim();
   result.className = 'notes-ai-result';
   button.disabled = true;
@@ -318,29 +329,39 @@ document.getElementById('notes-ai-run').onclick = async () => {
   let payload = { message: input || 'Help me study my notes.' };
   if (notesAIType === 'summary') {
     endpoint = '/ai/summarize';
-    payload = input ? { text: input } : { note_id: noteId || undefined };
+    payload = {};
+    if (input) payload.text = input;
+    if (noteId) payload.note_id = noteId;
+    if (fileId) payload.file_id = fileId;
   } else if (notesAIType === 'quiz' || notesAIType === 'flashcards') {
     endpoint = '/ai/quiz';
     payload = { topic: input || document.getElementById('notes-ai-note').selectedOptions[0].textContent };
     if (noteId) payload.note_id = noteId;
+    if (fileId) payload.file_id = fileId;
+    if (notesAIType === 'flashcards') payload.output_type = 'flashcards';
   }
   if (noteId && notesAIType !== 'summary') payload.note_id = noteId;
 
-  const response = await apiFetch(endpoint, 'POST', payload);
-  button.disabled = false;
-  button.textContent = notesAIType === 'chat' ? 'Ask NextMind' : notesAIType === 'summary' ? 'Summarise notes' : notesAIType === 'quiz' ? 'Generate quiz' : 'Create flashcards';
-
-  if (!response.success) {
+  try {
+    const response = await apiFetch(endpoint, 'POST', payload);
+    if (!response.success) {
+      result.classList.add('error');
+      result.textContent = response.message || 'The AI request could not be completed.';
+      return;
+    }
+    const text = response.data.answer || response.data.summary || response.data.quiz || response.data.text || JSON.stringify(response.data);
+    if (notesAIType === 'flashcards') {
+      result.classList.add('flashcards');
+      result.innerHTML = formatFlashcards(text);
+    } else {
+      result.textContent = text;
+    }
+  } catch (error) {
     result.classList.add('error');
-    result.textContent = response.message || 'The AI request could not be completed.';
-    return;
-  }
-  const text = response.data.answer || response.data.summary || response.data.quiz || response.data.text || JSON.stringify(response.data);
-  if (notesAIType === 'flashcards') {
-    result.classList.add('flashcards');
-    result.innerHTML = formatFlashcards(text);
-  } else {
-    result.textContent = text;
+    result.textContent = error?.message || 'The AI request could not be completed.';
+  } finally {
+    button.disabled = false;
+    button.textContent = notesAIType === 'chat' ? 'Ask NextMind' : notesAIType === 'summary' ? 'Summarise notes' : notesAIType === 'quiz' ? 'Generate quiz' : 'Create flashcards';
   }
 };
 
@@ -558,6 +579,31 @@ async function loadFiles() {
     countEl.textContent = '(—)';
     return;
   }
+
+  document.getElementById('resource-search').addEventListener('input', async event => {
+    const query = event.target.value.trim();
+    const results = document.getElementById('resource-search-results');
+    if (query.length < 2) {
+      results.innerHTML = '';
+      return;
+    }
+
+    const response = await apiFetch(`/files/search?q=${encodeURIComponent(query)}`);
+    if (!response.success) {
+      results.innerHTML = `<div style="color:#ff6b6b;font-size:0.75rem;">${escapeHtml(response.message || 'Search failed.')}</div>`;
+      return;
+    }
+
+    const matches = Array.isArray(response.data) ? response.data : [];
+    results.innerHTML = matches.length
+      ? `<div style="font-size:0.75rem;margin:0.5rem 0;">${matches.length} document${matches.length === 1 ? '' : 's'} found</div>` + matches.map(file => `
+        <article class="card" style="padding:0.65rem;margin-bottom:0.5rem;">
+          <strong style="font-size:0.8rem;">${escapeHtml(file.filename)}</strong>
+          <p style="font-size:0.72rem;color:var(--text-muted);margin:0.35rem 0;">${escapeHtml(file.snippet)}</p>
+          <button class="btn btn-secondary" type="button" onclick="downloadFile('${escapeHtml(file.id)}')">Open</button>
+        </article>`).join('')
+      : '<div style="font-size:0.75rem;color:var(--text-muted);">No matching documents found.</div>';
+  });
   if (!Array.isArray(res.data) || res.data.length === 0) {
     list.innerHTML = '<li style="color: var(--text-muted);">No external data files. Upload one to begin AI analysis.</li>';
     countEl.textContent = '(0)';

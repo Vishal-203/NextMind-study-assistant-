@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app
 from flask_jwt_extended import jwt_required
-from controllers.file_controller import upload_file, delete_file, get_file, list_files
+from controllers.file_controller import upload_file, delete_file, get_file, list_files, search_files
 
 file_bp = Blueprint('file', __name__)
 
@@ -17,6 +17,11 @@ def upload():
 @jwt_required()
 def files():
     return list_files(current_app)
+
+@file_bp.route('/search', methods=['GET'])
+@jwt_required()
+def search():
+    return search_files(current_app)
 
 @file_bp.route('/<file_id>', methods=['DELETE'])
 @jwt_required()

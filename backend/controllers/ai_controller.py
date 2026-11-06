@@ -205,6 +205,7 @@ def summarize_text(app):
     text = _request_text(data, 'text')
     file_id = data.get('file_id')
     note_id = data.get('note_id')
+    context_parts = [text] if text else []
 
     if note_id:
         note_result = _get_note_context(app, note_id)
@@ -214,16 +215,27 @@ def summarize_text(app):
                 note_result.get('message', 'Note context failed'),
                 status=note_result.get('status', 400)
             )
-        text = note_result['data']['text']
+        context_parts.append(note_result['data']['text'])
 
     if file_id:
         file_result = extract_text_from_file(app, file_id)
         if not file_result.get('success'):
             return resp(False, file_result.get('message', 'File extraction failed'), status=file_result.get('status', 400))
-        text = file_result['data']['text']
+        context_parts.append(file_result['data']['text'])
+
+    text = _combine_context_parts(context_parts)
+    if not context_parts and not note_id and not file_id:
+        user_id = get_jwt_identity()
+        notes = app.mongo.db.notes.find({
+            '$or': [
+                {'user_id': user_id},
+                {'shared_with': user_id}
+            ]
+        }).sort('updated_at', -1).limit(20)
+        text = _combine_context_parts([_build_note_context(note) for note in notes])
 
     if not text:
-        return resp(False, 'Text, file_id, or note_id is required', status=400)
+        return resp(False, 'Add a note or upload a study document before generating a summary.', status=400)
 
     client = get_ai_client()
     if client is None:
@@ -250,7 +262,32 @@ def summarize_text(app):
 def generate_quiz(app):
     data = request.get_json() or {}
     topic = _request_text(data, 'topic')
-    if not topic:
+    file_id = data.get('file_id')
+    note_id = data.get('note_id')
+    output_type = _request_text(data, 'output_type', 'type').lower()
+    is_flashcards = output_type == 'flashcards'
+
+    context = ''
+    if file_id:
+        file_result = extract_text_from_file(app, file_id)
+        if not file_result.get('success'):
+            return resp(False, file_result.get('message', 'File extraction failed'), status=file_result.get('status', 400))
+        context = file_result['data']['text']
+    if note_id:
+        note_result = _get_note_context(app, note_id)
+        if not note_result.get('success'):
+            return resp(False, note_result.get('message', 'Note context failed'), status=note_result.get('status', 400))
+        context = _combine_context_parts([context, note_result['data']['text']])
+    if not context and not note_id and not file_id:
+        user_id = get_jwt_identity()
+        notes = app.mongo.db.notes.find({
+            '$or': [
+                {'user_id': user_id},
+                {'shared_with': user_id}
+            ]
+        }).sort('updated_at', -1).limit(20)
+        context = _combine_context_parts([_build_note_context(note) for note in notes])
+    if not topic and not context:
         return resp(False, 'Topic is required', status=400)
 
     client = get_ai_client()
@@ -261,8 +298,19 @@ def generate_quiz(app):
         response = client.chat.completions.create(
             model=get_ai_model(),
             messages=[
-                {'role': 'system', 'content': 'You are an educational assistant. Create a 5-question academic quiz with answers for the given topic.'},
-                {'role': 'user', 'content': f'Create a quiz on: {topic}'}
+                {
+                    'role': 'system',
+                    'content': (
+                        'Create 8 revision flashcards in clearly separated blocks. '
+                        if is_flashcards else
+                        'You are an educational assistant. Create a 5-question academic quiz with answers. '
+                    )
+                    + 'Use the provided study material as the primary source.'
+                },
+                {'role': 'user', 'content': (
+                    f"Create {'flashcards' if is_flashcards else 'a quiz on'}: {topic or 'the study material'}\n\n"
+                    f"Study material:\n{context or topic}"
+                )}
             ],
             max_tokens=500,
             temperature=0.6
